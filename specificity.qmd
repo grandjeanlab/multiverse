@@ -1,0 +1,96 @@
+-
+title: "Pipeline specificity analysis"
+author: "Joanes Grandjean"
+date: "2024-06-18"
+format: 'gfm'
+---
+
+
+## populate the participants table with the results of the pipeline
+```{r}
+library(tidyverse)
+
+df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
+
+# SPM pipeline variables init
+df$spm.s1 <- NA
+df$spm.aca <- NA
+df$spm.specificity <- NA
+
+spm_cor_files <- list.files("/project/4180000.41/data/cas_export/corr", full.names = TRUE)
+
+# RABIES pipeline variables init
+df$rabies.s1 <- NA
+df$rabies.aca <- NA
+df$rabies.specificity <- NA
+
+rabies_cor_files <- list.files("/project/4180000.41/data/rabies_export/corr", full.names = TRUE)
+
+# DI1 pipeline variables init
+df$di1.s1 <- NA
+df$di1.aca <- NA
+df$di1.specificity <- NA
+
+di1_cor_files <- list.files("/project/4180000.41/data/di1_export/corr", full.names = TRUE)
+
+
+# the big loop that populates the table
+
+for (i in 1:nrow(df)) {
+  j<- str_which(spm_cor_files, df$participant_id[i])
+  if (length(j) == 1) {
+    
+  cor_tmp <- read_table(spm_cor_files[j], col_names = FALSE, show_col_types = FALSE)
+  df$spm.s1[i] <- cor_tmp$X2[1]
+  df$spm.aca[i] <- cor_tmp$X3[2]
+  df$spm.specificity[i] <- ifelse(df$spm.s1[i] > 0.1 & df$spm.aca[i] < 0.1, 1, 0)
+  }
+
+  j<- str_which(rabies_cor_files, df$participant_id[i])
+  if (length(j) == 1) {
+  cor_tmp <- read_table(rabies_cor_files[j], col_names = FALSE, show_col_types = FALSE)
+  df$rabies.s1[i] <- cor_tmp$X2[1]
+  df$rabies.aca[i] <- cor_tmp$X3[2]
+  df$rabies.specificity[i] <- ifelse(df$rabies.s1[i] > 0.1 & df$rabies.aca[i] < 0.1, 1, 0)
+  }
+
+  j<- str_which(di1_cor_files, df$participant_id[i])
+  if (length(j) == 1) {
+  cor_tmp <- read_table(di1_cor_files[j], col_names = FALSE, show_col_types = FALSE)
+  df$di1.s1[i] <- cor_tmp$X2[1]
+  df$di1.aca[i] <- cor_tmp$X3[2]
+  df$di1.specificity[i] <- ifelse(df$di1.s1[i] > 0.1 & df$di1.aca[i] < 0.1, 1, 0)
+  }
+
+}
+
+
+write_tsv(df, "assets/table/participants_specificity.tsv")
+
+```
+
+## Filter the participants by exclusion criteria and carry out specificity analysis
+
+```{r}
+library(tidyverse)
+
+df <- read_tsv("assets/table/participants_specificity.tsv")
+df_exclude <- read_tsv("assets/table/participants_exclude.tsv")
+
+df <- df %>% full_join(df_exclude, by = "participant_id")
+
+# transform the specificity variables into factors
+df$spm.specificity <- as.factor(df$spm.specificity)
+df$rabies.specificity <- as.factor(df$rabies.specificity)
+df$di1.specificity <- as.factor(df$di1.specificity)
+
+# look at specificity without filtering for data exclusion
+df %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+
+# look at specificity after filtering for data exclusion
+df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+
+# are the difference in specificity related to raw functional connectivity between s1?
+df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% summary()
+
+```

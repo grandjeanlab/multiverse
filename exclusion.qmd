@@ -1,0 +1,64 @@
+---
+title: "Pipeline exclusion summary"
+author: "Joanes Grandjean"
+date: "2024-06-18"
+format: 'gfm'
+---
+
+## SPM 
+2/209 excluded 
+
+sub-300406, missing
+sub-300500, missing
+
+## RABIES
+3/209 excluded
+
+sub-300301, registration
+sub-300305, registration
+sub-300507, registration
+sub-300400, timeseries
+sub-300800, distortion
+sub-300801, distortion
+sub-300802, distortion
+sub-300803, distortion
+sub-300804, distortion
+sub-300805, distortion
+sub-300806, distortion
+sub-300807, distortion
+sub-300808, distortion
+sub-300809, distortion
+
+## DI1 
+3/209 excluded (please note, DI1 was rerun adaptively to tweak registration parameters from failed subjects)
+
+sub-300302, registration
+sub-300502, registration
+sub-301106, registration
+
+## DI2 
+pending...
+
+```{r}
+library(tidyverse)
+
+df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
+
+spm <- c("sub-300406", "sub-300500")
+rabies <- c("sub-300301", "sub-300305", "sub-300507", "sub-300400", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
+di1 <- c("sub-300302", "sub-300502", "sub-301106")
+
+# create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
+df <- df %>% 
+  mutate(spm.exclude = ifelse(participant_id %in% spm, 1, 0),
+         rabies.exclude = ifelse(participant_id %in% rabies, 1, 0),
+         di1.exclude = ifelse(participant_id %in% di1, 1, 0))
+
+# create an global.exclude column which is a 1 if the participant is excluded in at least one pipeline
+df <- df %>% 
+  mutate(global.exclude = ifelse(spm.exclude + rabies.exclude + di1.exclude > 0, 1, 0))
+
+
+write_tsv(df, "assets/table/participants_exclude.tsv")
+```
+
