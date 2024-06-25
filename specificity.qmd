@@ -152,13 +152,13 @@ pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1")
 
 ```
 ### SPM pipeline specificity outcomes
-![spm_specificity](assets/figures/spm_specificity.svg)
+![spm_specificity](assets/figures/SPM_specificity.svg)
 
 ### RABIES pipeline specificity outcomes
-![rabies_specificity](assets/figures/rabies_specificity.svg)
+![rabies_specificity](assets/figures/RABIES_specificity.svg)
 
 ### DI1 pipeline specificity outcomes
-![di1_specificity](assets/figures/di1_specificity.svg)
+![di1_specificity](assets/figures/DI1_specificity.svg)
 
 ```{r}
 library(ggdist)
