@@ -88,46 +88,10 @@ write_tsv(df, "assets/table/participants_specificity.tsv")
 
 ``` r
 library(tidyverse)
-```
 
-    -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
-    v dplyr     1.1.4     v readr     2.1.5
-    v forcats   1.0.0     v stringr   1.5.1
-    v ggplot2   3.5.1     v tibble    3.2.1
-    v lubridate 1.9.3     v tidyr     1.3.1
-    v purrr     1.0.2     
-    -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    x dplyr::filter() masks stats::filter()
-    x dplyr::lag()    masks stats::lag()
-    i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+df <- read_tsv("assets/table/participants_specificity.tsv",, show_col_types = FALSE)
+df_exclude <- read_tsv("assets/table/participants_exclude.tsv", , show_col_types = FALSE)
 
-``` r
-df <- read_tsv("assets/table/participants_specificity.tsv")
-```
-
-    Rows: 209 Columns: 10
-    -- Column specification --------------------------------------------------------
-    Delimiter: "\t"
-    chr (4): participant_id, spm.specificity, rabies.specificity, di1.specificity
-    dbl (6): spm.s1, spm.aca, rabies.s1, rabies.aca, di1.s1, di1.aca
-
-    i Use `spec()` to retrieve the full column specification for this data.
-    i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-df_exclude <- read_tsv("assets/table/participants_exclude.tsv")
-```
-
-    Rows: 209 Columns: 5
-    -- Column specification --------------------------------------------------------
-    Delimiter: "\t"
-    chr (1): participant_id
-    dbl (4): spm.exclude, rabies.exclude, di1.exclude, global.exclude
-
-    i Use `spec()` to retrieve the full column specification for this data.
-    i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 df <- df %>% full_join(df_exclude, by = "participant_id")
 
 # transform the specificity variales into factors
@@ -172,52 +136,50 @@ df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% sum
      3rd Qu.: 0.6058   3rd Qu.: 0.51426   3rd Qu.: 0.47998  
      Max.   : 0.8868   Max.   : 0.78714   Max.   : 0.78341  
 
+## this section plots pipeline specificity for each pipeline
+
 ``` r
-pipeline_specificity_plot <- function(df, x, y, exclude, pipeline) {
+pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
   
   library(tidyverse)
   library(ggExtra)
 
   p <- df %>% filter(!!sym(exclude) == 0) %>%
-    ggplot(aes(x = !!sym(x), y = !!sym(y), group = global.exclude, color = global.exclude)) + 
+    ggplot(aes(x = !!sym(x), 
+               y = !!sym(y), 
+               color = as.factor(global.exclude))) + 
     geom_point(size = 0.1) + 
     geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
     geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
-    geom_segment(aes(x=-0.1,xend=0.1,y=-0.1,yend=-0.1),linetype = "dashed", linewidth=0.3) + 
-    geom_segment(aes(x=-0.1,xend=-0.1,y=0.1,yend=-0.1),linetype = "dashed", linewidth=0.3) + 
+    geom_segment(aes(x=-0.1,xend=0.1,y=-0.1,yend=-0.1),linetype = "dashed", linewidth=0.3, colour='black') + 
+    geom_segment(aes(x=-0.1,xend=-0.1,y=0.1,yend=-0.1),linetype = "dashed", linewidth=0.3, colour='black') + 
     xlim(-0.5, 1) + 
     ylim(-0.5, 1) + 
-    theme_minimal() + 
-    theme(legend.position = "none") + 
-    labs(title = pipeline, x = "S1 - S1 [r]", y = "S1 - ACA [r]") 
+    #labs(title = pipeline, x = "S1 - S1 [r]", y = "S1 - ACA [r]") +
+    scale_color_manual(values = c(met, "darkgrey")) +
+    theme_classic() +
+    theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank()) 
 
-  m <- ggMarginal(p, groupColour = TRUE, groupFill = TRUE, size = 10) 
+  m <- ggMarginal(p, fill = met, col = "black", size = 10) 
 
-  ggsave(paste0("assets/figures/", pipeline, "_specificity.svg"), plot=m, width = 80, height = 80, unit = 'mm', dpi = 300)
+
+
+  return(m)
 }
 
 
-pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM")
-pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES")
-pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1")
+library(ggpubr)
+library(MetBrewer)
+met <- met.brewer("VanGogh2", 3)
+
+spm_spec <- pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM", met[1])
+rabies_spec <- pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES", met[2])
+di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[3])
+
+combine_spec <- ggarrange(spm_spec, rabies_spec, di1_spec, ncol = 2, nrow = 2, labels = c("A", "B", "C"))
 ```
 
-    Warning: Removed 1 row containing missing values or values outside the scale range
-    (`geom_point()`).
-    Removed 1 row containing missing values or values outside the scale range
-    (`geom_point()`).
-
-### SPM pipeline specificity outcomes
-
-![spm_specificity](assets/figures/SPM_specificity.svg)
-
-### RABIES pipeline specificity outcomes
-
-![rabies_specificity](assets/figures/RABIES_specificity.svg)
-
-### DI1 pipeline specificity outcomes
-
-![di1_specificity](assets/figures/DI1_specificity.svg)
+## this section plots S1 - S1 correlations across pipelines
 
 ``` r
 library(ggdist)
@@ -225,46 +187,63 @@ library(ggdist)
 # select the s1 colums and global exclude from df and pivot the table
 df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1), names_to = "pipeline", values_to = "s1")
 
-p <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = pipeline)) + 
+# rename the pipelines to remove the .s1 and capitalize all
+df_s1$pipeline <- str_to_upper(df_s1$pipeline)
+df_s1$pipeline <- str_remove(df_s1$pipeline, ".S1")
+
+s1_plot <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = pipeline)) + 
   stat_slab(aes(thickness = after_stat(pdf*n)), scale = 0.5) + 
   stat_dotsinterval(side = "bottom", scale = 0.2, slab_linewidth = NA) +
-  geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
-  theme_minimal() + 
-  theme(legend.position = "none") + 
+  geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.3) +
+  scale_fill_manual(values = rev(met)) +
+  xlim(-0.5, 1) +
+  theme_classic() + 
+  theme(legend.position = "none", axis.title.y=element_blank()) +
   labs(title = "Specific correlation", x = "S1 - S1 [r]", y = "Pipeline")
-
-ggsave("assets/figures/s1_correlation.svg", plot=p, width = 80, height = 80, unit = 'mm', dpi = 300)
 ```
 
-    Warning: Removed 16 rows containing missing values or values outside the scale range
-    (`stat_slabinterval()`).
-    Removed 16 rows containing missing values or values outside the scale range
-    (`stat_slabinterval()`).
-
-### S1 - S1 correlation across pipelines
-
-![s1_correlation](assets/figures/s1_correlation.svg)
+## this section plots S1 - ACA correlation across pipelines
 
 ``` r
 # select the aca colums and global exclude from df and pivot the table
 df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca), names_to = "pipeline", values_to = "aca")
 
-p <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill = pipeline)) + 
+# rename the pipelines to remove the .aca and capitalize all
+df_aca$pipeline <- str_to_upper(df_aca$pipeline)
+df_aca$pipeline <- str_remove(df_aca$pipeline, ".ACA")
+
+
+aca_plot <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill = pipeline)) + 
   stat_slab(aes(thickness = after_stat(pdf*n)), scale = 0.5) + 
   stat_dotsinterval(side = "bottom", scale = 0.2, slab_linewidth = NA) +
-  geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
-  theme_minimal() + 
-  theme(legend.position = "none") + 
-  labs(title = "Non-specific correlation", x = "pipeline", y = "S1 - ACA [r]")
-
-ggsave("assets/figures/aca_correlation.svg", plot=p, width = 80, height = 80, unit = 'mm', dpi = 300)
+  geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
+  scale_fill_manual(values = rev(met)) +
+  ylim(-0.5, 1) +
+  theme_classic() + 
+  theme(legend.position = "none", axis.title.x = element_blank()) + 
+  labs(title = "Non-specific correlation", y = "S1 - ACA [r]")
 ```
 
-    Warning: Removed 16 rows containing missing values or values outside the scale range
-    (`stat_slabinterval()`).
-    Removed 16 rows containing missing values or values outside the scale range
-    (`stat_slabinterval()`).
+``` r
+# select the specificity colums from df and pivot the table
+df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di1.specificity) %>% pivot_longer(cols = c(spm.specificity, rabies.specificity, di1.specificity), names_to = "pipeline", values_to = "specific")
 
-### S1 - ACA correlation across pipelines
+df_spec$pipeline <- str_remove(df_spec$pipeline, ".specificity")
+df_spec$pipeline <- str_to_upper(df_spec$pipeline)
 
-![aca_correlation](assets/figures/aca_correlation.svg)
+df_spec %>% ggplot(aes(x = specific, 
+                       y = pipeline, 
+                       group = pipeline, 
+                       fill = pipeline)) + 
+  geom_bar()
+```
+
+## puts all the figures together
+
+``` r
+combine_plot <- ggarrange(combine_spec, ggarrange(s1_plot, aca_plot, labels = c("E", "F"), ncol = 1, nrow = 2), ncol = 2, nrow = 1)
+
+ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 180, height = 120, unit = 'mm', dpi = 300)
+```
+
+![figure_specificity](%22assets/figures/pipeline_specificity.svg%22)
