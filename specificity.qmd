@@ -8,6 +8,22 @@ execute:
 ---
 
 
+## load the all the libraries used on this notebook and set important variables
+```{r}
+
+library(tidyverse)
+library(ggpubr)
+library(ggdist)
+library(MetBrewer)
+
+color.scheme <- "VanGogh2"
+n.pipeline <- 3
+
+met <- met.brewer(color.scheme, n.pipeline)
+
+```
+
+
 ## populate the participants table with the results of the pipeline. Only run once to make the table. 
 ```{r}
 #| eval = FALSE
@@ -30,8 +46,6 @@ pipeline_specificity <- function(cor_file) {
   }
 }
 
-
-library(tidyverse)
 
 df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
 
@@ -96,7 +110,6 @@ write_tsv(df, "assets/table/participants_specificity.tsv")
 ## Filter the participants by exclusion criteria and carry out specificity analysis
 
 ```{r}
-library(tidyverse)
 
 df <- read_tsv("assets/table/participants_specificity.tsv",, show_col_types = FALSE)
 df_exclude <- read_tsv("assets/table/participants_exclude.tsv", , show_col_types = FALSE)
@@ -126,6 +139,12 @@ df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% sum
 
 ``` 
 
+```{r}
+# are the difference in specificity related to raw functional connectivity between s1 and aca?
+df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca) %>% summary()
+
+``` 
+
 
 ## this section plots pipeline specificity for each pipeline
 ```{r}
@@ -152,17 +171,12 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
     theme_classic() +
     theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank()) 
 
-  m <- ggMarginal(p, fill = met, col = "black", size = 10) 
-
-
+  m <- ggMarginal(p, fill = met, color = NaN, size = 10) 
 
   return(m)
 }
 
 
-library(ggpubr)
-library(MetBrewer)
-met <- met.brewer("VanGogh2", 3)
 
 spm_spec <- pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM", met[1])
 rabies_spec <- pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES", met[2])
@@ -175,7 +189,7 @@ combine_spec <- ggarrange(spm_spec, rabies_spec, di1_spec, ncol = 2, nrow = 2, l
 ```{r}
 #| eval = FALSE
 
-library(ggdist)
+
 
 # select the s1 colums and global exclude from df and pivot the table
 df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1), names_to = "pipeline", values_to = "s1")
@@ -229,11 +243,18 @@ df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di
 df_spec$pipeline <- str_remove(df_spec$pipeline, ".specificity")
 df_spec$pipeline <- str_to_upper(df_spec$pipeline)
 
-df_spec %>% ggplot(aes(x = specific, 
-                       y = pipeline, 
-                       group = pipeline, 
-                       fill = pipeline)) + 
-  geom_bar()
+summary_plot <- df_spec %>% ggplot(aes(x = pipeline,  
+                       group = specific, 
+                       fill = specific)) + 
+  geom_bar() +
+  scale_fill_manual(values = met.brewer("VanGogh2",5)) +
+  theme_classic() + 
+  theme(legend.position = "none", 
+        axis.title.x = element_blank(), 
+        axis.line.x = element_blank(), 
+        axis.ticks.x = element_blank()) +
+  labs(y = "# scans")
+    
 
 ```
 
@@ -241,7 +262,7 @@ df_spec %>% ggplot(aes(x = specific,
 ```{r}
 #| eval = FALSE
 
-combine_plot <- ggarrange(combine_spec, ggarrange(s1_plot, aca_plot, labels = c("E", "F"), ncol = 1, nrow = 2), ncol = 2, nrow = 1)
+combine_plot <- ggarrange(combine_spec, s1_plot, aca_plot, summary_plot, labels = c("", "E", "F", "G"), ncol = 2, nrow = 2)
 
 ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 180, height = 120, unit = 'mm', dpi = 300)
 ```

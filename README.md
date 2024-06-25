@@ -44,10 +44,10 @@ https://zenodo.org/record/7829128
 ## The results
 As of June 18th 2024, we have 4 pipelines submitted: SPM, RABIES, Donders Institute #1 (DI1), and Donders Institute #2 (DI2).
 
-1. Pipeline descriptions [here](pipeline.md)
-2. Data exclusion summary [here](exclusion.qmd)
+1. [Pipeline descriptions](pipeline.md)
+2. [Data exclusion summary](exclusion.qmd)
 3. Motion parameters correlations between pipelines and frame exclusion (to do)
-4. Connectivity specificity analysis (to do)
+4. [Connectivity specificity analysis](specificity.md) 
 5. Default mode network detection (to do)
 
 ## Extra resources
