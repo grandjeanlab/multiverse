@@ -6,8 +6,26 @@ format: 'gfm'
 ---
 
 
-## populate the participants table with the results of the pipeline
-```{r}
+## populate the participants table with the results of the pipeline. Only run once to make the table. 
+```{r, eval = FALSE}
+# write a function that reads a table and returns the specificity of the pipeline
+pipeline_specificity <- function(cor_file) {
+  cor_tmp <- read_table(cor_file, col_names = FALSE, show_col_types = FALSE)
+  s1 <- cor_tmp$X2[1]
+  aca <- cor_tmp$X3[2]
+  
+  if(abs(s1) < 0.1 & abs(aca) < 0.1) {
+    return(c("no", s1, aca))
+  } else if (s1 > 0.1 & aca < 0.1) {
+    return(c("specific", s1, aca))
+  } else if (s1 < 0.1 & aca > 0.1) {
+    return(c("non-specific", s1, aca))
+  } else {
+    return(c("spurious", s1, aca))
+  }
+}
+
+
 library(tidyverse)
 
 df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
@@ -39,29 +57,30 @@ di1_cor_files <- list.files("/project/4180000.41/data/di1_export/corr", full.nam
 for (i in 1:nrow(df)) {
   j<- str_which(spm_cor_files, df$participant_id[i])
   if (length(j) == 1) {
-    
-  cor_tmp <- read_table(spm_cor_files[j], col_names = FALSE, show_col_types = FALSE)
-  df$spm.s1[i] <- cor_tmp$X2[1]
-  df$spm.aca[i] <- cor_tmp$X3[2]
-  df$spm.specificity[i] <- ifelse(df$spm.s1[i] > 0.1 & df$spm.aca[i] < 0.1, 1, 0)
+  
+  tmp <- pipeline_specificity(spm_cor_files[j])
+  df$spm.specificity[i] <- tmp[1]
+  df$spm.s1[i] <- tmp[2]
+  df$spm.aca[i] <- tmp[3] 
   }
 
   j<- str_which(rabies_cor_files, df$participant_id[i])
   if (length(j) == 1) {
-  cor_tmp <- read_table(rabies_cor_files[j], col_names = FALSE, show_col_types = FALSE)
-  df$rabies.s1[i] <- cor_tmp$X2[1]
-  df$rabies.aca[i] <- cor_tmp$X3[2]
-  df$rabies.specificity[i] <- ifelse(df$rabies.s1[i] > 0.1 & df$rabies.aca[i] < 0.1, 1, 0)
+
+  tmp <- pipeline_specificity(rabies_cor_files[j])
+  df$rabies.specificity[i] <- tmp[1]
+  df$rabies.s1[i] <- tmp[2]
+  df$rabies.aca[i] <- tmp[3]
   }
 
   j<- str_which(di1_cor_files, df$participant_id[i])
   if (length(j) == 1) {
-  cor_tmp <- read_table(di1_cor_files[j], col_names = FALSE, show_col_types = FALSE)
-  df$di1.s1[i] <- cor_tmp$X2[1]
-  df$di1.aca[i] <- cor_tmp$X3[2]
-  df$di1.specificity[i] <- ifelse(df$di1.s1[i] > 0.1 & df$di1.aca[i] < 0.1, 1, 0)
-  }
 
+  tmp <- pipeline_specificity(di1_cor_files[j])
+  df$di1.specificity[i] <- tmp[1]
+  df$di1.s1[i] <- tmp[2]
+  df$di1.aca[i] <- tmp[3]
+  }
 }
 
 
@@ -79,18 +98,27 @@ df_exclude <- read_tsv("assets/table/participants_exclude.tsv")
 
 df <- df %>% full_join(df_exclude, by = "participant_id")
 
-# transform the specificity variables into factors
+# transform the specificity variales into factors
 df$spm.specificity <- as.factor(df$spm.specificity)
 df$rabies.specificity <- as.factor(df$rabies.specificity)
 df$di1.specificity <- as.factor(df$di1.specificity)
 
+```
+
+```{r}
 # look at specificity without filtering for data exclusion
 df %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+```
 
+```{r}
 # look at specificity after filtering for data exclusion
 df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+```
 
+```{r}
 # are the difference in specificity related to raw functional connectivity between s1?
 df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% summary()
 
-```
+``` 
+
+
