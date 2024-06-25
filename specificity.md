@@ -1,13 +1,10 @@
----
-title: "Pipeline specificity analysis"
-author: "Joanes Grandjean"
-date: "2024-06-18"
-format: gfm
----
+# Pipeline specificity analysis
+Joanes Grandjean
+2024-06-18
 
+## populate the participants table with the results of the pipeline. Only run once to make the table.
 
-## populate the participants table with the results of the pipeline. Only run once to make the table. 
-```{r, eval = FALSE}
+``` r
 # write a function that reads a table and returns the specificity of the pipeline
 pipeline_specificity <- function(cor_file) {
   cor_tmp <- read_table(cor_file, col_names = FALSE, show_col_types = FALSE)
@@ -85,43 +82,97 @@ for (i in 1:nrow(df)) {
 
 
 write_tsv(df, "assets/table/participants_specificity.tsv")
-
 ```
 
 ## Filter the participants by exclusion criteria and carry out specificity analysis
 
-```{r}
+``` r
 library(tidyverse)
+```
 
+    -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+    v dplyr     1.1.4     v readr     2.1.5
+    v forcats   1.0.0     v stringr   1.5.1
+    v ggplot2   3.5.1     v tibble    3.2.1
+    v lubridate 1.9.3     v tidyr     1.3.1
+    v purrr     1.0.2     
+    -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+    x dplyr::filter() masks stats::filter()
+    x dplyr::lag()    masks stats::lag()
+    i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
 df <- read_tsv("assets/table/participants_specificity.tsv")
-df_exclude <- read_tsv("assets/table/participants_exclude.tsv")
+```
 
+    Rows: 209 Columns: 10
+    -- Column specification --------------------------------------------------------
+    Delimiter: "\t"
+    chr (4): participant_id, spm.specificity, rabies.specificity, di1.specificity
+    dbl (6): spm.s1, spm.aca, rabies.s1, rabies.aca, di1.s1, di1.aca
+
+    i Use `spec()` to retrieve the full column specification for this data.
+    i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+df_exclude <- read_tsv("assets/table/participants_exclude.tsv")
+```
+
+    Rows: 209 Columns: 5
+    -- Column specification --------------------------------------------------------
+    Delimiter: "\t"
+    chr (1): participant_id
+    dbl (4): spm.exclude, rabies.exclude, di1.exclude, global.exclude
+
+    i Use `spec()` to retrieve the full column specification for this data.
+    i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 df <- df %>% full_join(df_exclude, by = "participant_id")
 
 # transform the specificity variales into factors
 df$spm.specificity <- as.factor(df$spm.specificity)
 df$rabies.specificity <- as.factor(df$rabies.specificity)
 df$di1.specificity <- as.factor(df$di1.specificity)
-
 ```
 
-```{r}
+``` r
 # look at specificity without filtering for data exclusion
 df %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
 ```
 
-```{r}
+         spm.specificity    rabies.specificity     di1.specificity
+     no          : 12    no          : 22      no          : 22   
+     non-specific:  4    non-specific:  4      non-specific:  7   
+     specific    : 55    specific    :111      specific    :131   
+     spurious    :136    spurious    : 58      spurious    : 49   
+     NA's        :  2    NA's        : 14                         
+
+``` r
 # look at specificity after filtering for data exclusion
 df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
 ```
 
-```{r}
+         spm.specificity    rabies.specificity     di1.specificity
+     no          : 11    no          : 22      no          : 22   
+     non-specific:  2    non-specific:  4      non-specific:  6   
+     specific    : 51    specific    :109      specific    :123   
+     spurious    :126    spurious    : 55      spurious    : 39   
+
+``` r
 # are the difference in specificity related to raw functional connectivity between s1?
 df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% summary()
+```
 
-``` 
+         spm.s1          rabies.s1            di1.s1        
+     Min.   :-0.1037   Min.   :-0.04058   Min.   :-0.08585  
+     1st Qu.: 0.2469   1st Qu.: 0.16797   1st Qu.: 0.13102  
+     Median : 0.3970   Median : 0.29373   Median : 0.29047  
+     Mean   : 0.4214   Mean   : 0.32754   Mean   : 0.31106  
+     3rd Qu.: 0.6058   3rd Qu.: 0.51426   3rd Qu.: 0.47998  
+     Max.   : 0.8868   Max.   : 0.78714   Max.   : 0.78341  
 
-```{r}
+``` r
 pipeline_specificity_plot <- function(df, x, y, exclude, pipeline) {
   
   library(tidyverse)
@@ -149,18 +200,26 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline) {
 pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM")
 pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES")
 pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1")
-
 ```
+
+    Warning: Removed 1 row containing missing values or values outside the scale range
+    (`geom_point()`).
+    Removed 1 row containing missing values or values outside the scale range
+    (`geom_point()`).
+
 ### SPM pipeline specificity outcomes
+
 ![spm_specificity](assets/figures/spm_specificity.svg)
 
 ### RABIES pipeline specificity outcomes
+
 ![rabies_specificity](assets/figures/rabies_specificity.svg)
 
 ### DI1 pipeline specificity outcomes
+
 ![di1_specificity](assets/figures/di1_specificity.svg)
 
-```{r}
+``` r
 library(ggdist)
 
 # select the s1 colums and global exclude from df and pivot the table
@@ -177,10 +236,16 @@ p <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = pipelin
 ggsave("assets/figures/s1_correlation.svg", plot=p, width = 80, height = 80, unit = 'mm', dpi = 300)
 ```
 
+    Warning: Removed 16 rows containing missing values or values outside the scale range
+    (`stat_slabinterval()`).
+    Removed 16 rows containing missing values or values outside the scale range
+    (`stat_slabinterval()`).
+
 ### S1 - S1 correlation across pipelines
+
 ![s1_correlation](assets/figures/s1_correlation.svg)
 
-```{r}
+``` r
 # select the aca colums and global exclude from df and pivot the table
 df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca), names_to = "pipeline", values_to = "aca")
 
@@ -195,6 +260,11 @@ p <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill = pipel
 ggsave("assets/figures/aca_correlation.svg", plot=p, width = 80, height = 80, unit = 'mm', dpi = 300)
 ```
 
-### S1 - ACA correlation across pipelines
-![aca_correlation](assets/figures/aca_correlation.svg)
+    Warning: Removed 16 rows containing missing values or values outside the scale range
+    (`stat_slabinterval()`).
+    Removed 16 rows containing missing values or values outside the scale range
+    (`stat_slabinterval()`).
 
+### S1 - ACA correlation across pipelines
+
+![aca_correlation](assets/figures/aca_correlation.svg)

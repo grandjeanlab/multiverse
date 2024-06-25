@@ -7,13 +7,13 @@ date: "2024-06-18"
 ![title card](assets/pictures/title.jpg)
 
 # Welcome to the Multiverse. 
-This multicenter project is about evaluating the performance of different rodent functional MRI piplelines using our laterst Multicenter datasets. Everyone is invited to contribute datasets. 
+This multicenter project is about evaluating the performance of different rodent functional MRI piplelines using our laterst Multicenter datasets. Everyone is invited to contribute pipelines.  
 
-Why run this? I have been advocating hard for standardize pipelines. We have proposed a protocol for imaging the rat brain that improves the connectivity [outcomes by 50%](https://pubmed.ncbi.nlm.nih.gov/36973511/). This was achieved by using a single pipeline, [RABIES](https://github.com/CoBrALab/RABIE), for data processing. What if there was a better pipeline out there? Can we skeeze out more out of our data?
+Why run this? I have been advocating hard for standardize pipelines. We have proposed a protocol for imaging the rat brain that improves the connectivity [outcomes by 50%](https://pubmed.ncbi.nlm.nih.gov/36973511/). This was achieved by using a single pipeline, [RABIES](https://github.com/CoBrALab/RABIE), for data processing. Here we ask how do other pipelines perform? Can we squeeze out more out of our data? Can we identify best practices? 
 
 Expected outcomes: 
-- identification of the best pipeline for the stdrat task-free dataset
-- making resource available to reproduce the analysis
+- identification of best practices for the preprocessing of the stdrat task-free dataset
+- making resource available to reproduce the analysis for the different pipelines
 - a publication with all the authors that contributed to the project (yay!!)
 
 ## Joining the Multiverse
@@ -51,6 +51,6 @@ As of June 18th 2024, we have 4 pipelines submitted: SPM, RABIES, Donders Instit
 5. Default mode network detection (to do)
 
 ## Extra resources
-- RABIES readthedocs: https://rabies.readthedocs.io/en/latest/
-- RABIES apptainer containers: https://github.com/CoBrALab/RABIES/releases
-- DI1 and DI2 neurodocker recipes (to do)
+- RABIES [readthedocs](https://rabies.readthedocs.io/en/latest/)
+- RABIES apptainer [containers](https://github.com/CoBrALab/RABIES/releases)
+- DI1 and DI2 neurodocker [recipes](https://github.com/grandjeanlab/apptainer/blob/main/neurodocker/neurodocker)
