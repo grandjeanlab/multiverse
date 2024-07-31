@@ -2,6 +2,20 @@
 Joanes Grandjean
 2024-06-18
 
+## load the all the libraries used on this notebook and set important variables
+
+``` r
+library(tidyverse)
+library(ggpubr)
+library(ggdist)
+library(MetBrewer)
+
+color.scheme <- "VanGogh2"
+n.pipeline <- 4
+
+met <- met.brewer(color.scheme, n.pipeline)
+```
+
 ## populate the participants table with the results of the pipeline. Only run once to make the table.
 
 ``` r
@@ -22,8 +36,6 @@ pipeline_specificity <- function(cor_file) {
   }
 }
 
-
-library(tidyverse)
 
 df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
 
@@ -48,6 +60,13 @@ df$di1.specificity <- NA
 
 di1_cor_files <- list.files("/project/4180000.41/data/di1_export/corr", full.names = TRUE)
 
+
+# easymribrain pipeline variables init
+df$easymribrain.s1 <- NA
+df$easymribrain.aca <- NA
+df$easymribrain.specificity <- NA
+
+easymribrain_cor_files <- list.files("/project/4180000.41/data/garin_export/corr", full.names = TRUE)
 
 # the big loop that populates the table
 
@@ -78,6 +97,15 @@ for (i in 1:nrow(df)) {
   df$di1.s1[i] <- tmp[2]
   df$di1.aca[i] <- tmp[3]
   }
+
+  j<- str_which(easymribrain_cor_files, df$participant_id[i])
+  if (length(j) == 1) {
+
+  tmp <- pipeline_specificity(easymribrain_cor_files[j])
+  df$easymribrain.specificity[i] <- tmp[1]
+  df$easymribrain.s1[i] <- tmp[2]
+  df$easymribrain.aca[i] <- tmp[3]
+  } 
 }
 
 
@@ -87,8 +115,6 @@ write_tsv(df, "assets/table/participants_specificity.tsv")
 ## Filter the participants by exclusion criteria and carry out specificity analysis
 
 ``` r
-library(tidyverse)
-
 df <- read_tsv("assets/table/participants_specificity.tsv",, show_col_types = FALSE)
 df_exclude <- read_tsv("assets/table/participants_exclude.tsv", , show_col_types = FALSE)
 
@@ -98,11 +124,12 @@ df <- df %>% full_join(df_exclude, by = "participant_id")
 df$spm.specificity <- as.factor(df$spm.specificity)
 df$rabies.specificity <- as.factor(df$rabies.specificity)
 df$di1.specificity <- as.factor(df$di1.specificity)
+df$easymribrain.specificity <- as.factor(df$easymribrain.specificity)
 ```
 
 ``` r
 # look at specificity without filtering for data exclusion
-df %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+df %>% select(spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity) %>% summary()
 ```
 
          spm.specificity    rabies.specificity     di1.specificity
@@ -111,30 +138,58 @@ df %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary(
      specific    : 55    specific    :111      specific    :131   
      spurious    :136    spurious    : 58      spurious    : 49   
      NA's        :  2    NA's        : 14                         
+     easymribrain.specificity
+     no          :29         
+     non-specific:11         
+     specific    :78         
+     spurious    :89         
+     NA's        : 2         
 
 ``` r
 # look at specificity after filtering for data exclusion
-df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity) %>% summary()
 ```
 
          spm.specificity    rabies.specificity     di1.specificity
      no          : 11    no          : 22      no          : 22   
      non-specific:  2    non-specific:  4      non-specific:  6   
-     specific    : 51    specific    :109      specific    :123   
-     spurious    :126    spurious    : 55      spurious    : 39   
+     specific    : 50    specific    :107      specific    :122   
+     spurious    :125    spurious    : 55      spurious    : 38   
+                                                                  
+     easymribrain.specificity
+     no          :27         
+     non-specific: 8         
+     specific    :73         
+     spurious    :79         
+     NA's        : 1         
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1?
-df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1, easymribrain.s1) %>% summary()
 ```
 
-         spm.s1          rabies.s1            di1.s1        
-     Min.   :-0.1037   Min.   :-0.04058   Min.   :-0.08585  
-     1st Qu.: 0.2469   1st Qu.: 0.16797   1st Qu.: 0.13102  
-     Median : 0.3970   Median : 0.29373   Median : 0.29047  
-     Mean   : 0.4214   Mean   : 0.32754   Mean   : 0.31106  
-     3rd Qu.: 0.6058   3rd Qu.: 0.51426   3rd Qu.: 0.47998  
-     Max.   : 0.8868   Max.   : 0.78714   Max.   : 0.78341  
+         spm.s1          rabies.s1            di1.s1         easymribrain.s1   
+     Min.   :-0.1037   Min.   :-0.04058   Min.   :-0.08585   Min.   :-0.17283  
+     1st Qu.: 0.2471   1st Qu.: 0.16810   1st Qu.: 0.13009   1st Qu.: 0.09401  
+     Median : 0.4064   Median : 0.29782   Median : 0.29459   Median : 0.22118  
+     Mean   : 0.4238   Mean   : 0.32903   Mean   : 0.31227   Mean   : 0.25622  
+     3rd Qu.: 0.6084   3rd Qu.: 0.51494   3rd Qu.: 0.48682   3rd Qu.: 0.38048  
+     Max.   : 0.8868   Max.   : 0.78714   Max.   : 0.78341   Max.   : 0.88179  
+                                                             NA's   :1         
+
+``` r
+# are the difference in specificity related to raw functional connectivity between s1 and aca?
+df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca, easymribrain.aca) %>% summary()
+```
+
+        spm.aca           rabies.aca          di1.aca         easymribrain.aca   
+     Min.   :-0.11245   Min.   :-0.35826   Min.   :-0.59714   Min.   :-0.323180  
+     1st Qu.: 0.06876   1st Qu.:-0.00710   1st Qu.:-0.12304   1st Qu.:-0.004245  
+     Median : 0.19087   Median : 0.04566   Median :-0.03870   Median : 0.061360  
+     Mean   : 0.20599   Mean   : 0.05625   Mean   :-0.02826   Mean   : 0.080732  
+     3rd Qu.: 0.31884   3rd Qu.: 0.12019   3rd Qu.: 0.05076   3rd Qu.: 0.172740  
+     Max.   : 0.70316   Max.   : 0.52546   Max.   : 0.71522   Max.   : 0.722300  
+                                                              NA's   :1          
 
 ## this section plots pipeline specificity for each pipeline
 
@@ -160,32 +215,25 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
     theme_classic() +
     theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank()) 
 
-  m <- ggMarginal(p, fill = met, col = "black", size = 10) 
-
-
+  m <- ggMarginal(p, fill = met, color = NaN, size = 10) 
 
   return(m)
 }
 
 
-library(ggpubr)
-library(MetBrewer)
-met <- met.brewer("VanGogh2", 3)
 
 spm_spec <- pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM", met[1])
 rabies_spec <- pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES", met[2])
-di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[3])
-
-combine_spec <- ggarrange(spm_spec, rabies_spec, di1_spec, ncol = 2, nrow = 2, labels = c("A", "B", "C"))
+easymribrain_spec <- pipeline_specificity_plot(df, "easymribrain.s1", "easymribrain.aca", "easymribrain.exclude", "easyMRIbrain", met[3])
+di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[4])
+combine_spec <- ggarrange(spm_spec, rabies_spec, easymribrain_spec, di1_spec, ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"))
 ```
 
 ## this section plots S1 - S1 correlations across pipelines
 
 ``` r
-library(ggdist)
-
 # select the s1 colums and global exclude from df and pivot the table
-df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1), names_to = "pipeline", values_to = "s1")
+df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, easymribrain.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1, easymribrain.s1), names_to = "pipeline", values_to = "s1")
 
 # rename the pipelines to remove the .s1 and capitalize all
 df_s1$pipeline <- str_to_upper(df_s1$pipeline)
@@ -206,7 +254,7 @@ s1_plot <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = p
 
 ``` r
 # select the aca colums and global exclude from df and pivot the table
-df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca), names_to = "pipeline", values_to = "aca")
+df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, easymribrain.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca, easymribrain.aca), names_to = "pipeline", values_to = "aca")
 
 # rename the pipelines to remove the .aca and capitalize all
 df_aca$pipeline <- str_to_upper(df_aca$pipeline)
@@ -226,24 +274,30 @@ aca_plot <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill 
 
 ``` r
 # select the specificity colums from df and pivot the table
-df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di1.specificity) %>% pivot_longer(cols = c(spm.specificity, rabies.specificity, di1.specificity), names_to = "pipeline", values_to = "specific")
+df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity) %>% pivot_longer(cols = c(spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity), names_to = "pipeline", values_to = "specific")
 
 df_spec$pipeline <- str_remove(df_spec$pipeline, ".specificity")
 df_spec$pipeline <- str_to_upper(df_spec$pipeline)
 
-df_spec %>% ggplot(aes(x = specific, 
-                       y = pipeline, 
-                       group = pipeline, 
-                       fill = pipeline)) + 
-  geom_bar()
+summary_plot <- df_spec %>% ggplot(aes(x = pipeline,  
+                       group = specific, 
+                       fill = specific)) + 
+  geom_bar() +
+  scale_fill_manual(values = met.brewer("VanGogh2",5)) +
+  theme_classic() + 
+  theme(legend.position = "none", 
+        axis.title.x = element_blank(), 
+        axis.line.x = element_blank(), 
+        axis.ticks.x = element_blank()) +
+  labs(y = "# scans")
 ```
 
 ## puts all the figures together
 
 ``` r
-combine_plot <- ggarrange(combine_spec, ggarrange(s1_plot, aca_plot, labels = c("E", "F"), ncol = 1, nrow = 2), ncol = 2, nrow = 1)
+combine_plot <- ggarrange(combine_spec, s1_plot, aca_plot, summary_plot, labels = c("", "E", "F", "G"), ncol = 2, nrow = 2)
 
 ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 180, height = 120, unit = 'mm', dpi = 300)
 ```
 
-![figure_specificity](%22assets/figures/pipeline_specificity.svg%22)
+![figure_specificity](assets/figures/pipeline_specificity.svg)

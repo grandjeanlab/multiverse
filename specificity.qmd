@@ -17,7 +17,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-n.pipeline <- 3
+n.pipeline <- 4
 
 met <- met.brewer(color.scheme, n.pipeline)
 
@@ -71,6 +71,13 @@ df$di1.specificity <- NA
 di1_cor_files <- list.files("/project/4180000.41/data/di1_export/corr", full.names = TRUE)
 
 
+# easymribrain pipeline variables init
+df$easymribrain.s1 <- NA
+df$easymribrain.aca <- NA
+df$easymribrain.specificity <- NA
+
+easymribrain_cor_files <- list.files("/project/4180000.41/data/garin_export/corr", full.names = TRUE)
+
 # the big loop that populates the table
 
 for (i in 1:nrow(df)) {
@@ -100,6 +107,15 @@ for (i in 1:nrow(df)) {
   df$di1.s1[i] <- tmp[2]
   df$di1.aca[i] <- tmp[3]
   }
+
+  j<- str_which(easymribrain_cor_files, df$participant_id[i])
+  if (length(j) == 1) {
+
+  tmp <- pipeline_specificity(easymribrain_cor_files[j])
+  df$easymribrain.specificity[i] <- tmp[1]
+  df$easymribrain.s1[i] <- tmp[2]
+  df$easymribrain.aca[i] <- tmp[3]
+  } 
 }
 
 
@@ -120,28 +136,29 @@ df <- df %>% full_join(df_exclude, by = "participant_id")
 df$spm.specificity <- as.factor(df$spm.specificity)
 df$rabies.specificity <- as.factor(df$rabies.specificity)
 df$di1.specificity <- as.factor(df$di1.specificity)
+df$easymribrain.specificity <- as.factor(df$easymribrain.specificity)
 
 ```
 
 ```{r}
 # look at specificity without filtering for data exclusion
-df %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+df %>% select(spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity) %>% summary()
 ```
 
 ```{r}
 # look at specificity after filtering for data exclusion
-df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity) %>% summary()
 ```
 
 ```{r}
 # are the difference in specificity related to raw functional connectivity between s1?
-df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1, easymribrain.s1) %>% summary()
 
 ``` 
 
 ```{r}
 # are the difference in specificity related to raw functional connectivity between s1 and aca?
-df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca, easymribrain.aca) %>% summary()
 
 ``` 
 
@@ -180,9 +197,9 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
 
 spm_spec <- pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM", met[1])
 rabies_spec <- pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES", met[2])
-di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[3])
-
-combine_spec <- ggarrange(spm_spec, rabies_spec, di1_spec, ncol = 2, nrow = 2, labels = c("A", "B", "C"))
+easymribrain_spec <- pipeline_specificity_plot(df, "easymribrain.s1", "easymribrain.aca", "easymribrain.exclude", "easyMRIbrain", met[3])
+di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[4])
+combine_spec <- ggarrange(spm_spec, rabies_spec, easymribrain_spec, di1_spec, ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"))
 ```
 
 ## this section plots S1 - S1 correlations across pipelines
@@ -192,7 +209,7 @@ combine_spec <- ggarrange(spm_spec, rabies_spec, di1_spec, ncol = 2, nrow = 2, l
 
 
 # select the s1 colums and global exclude from df and pivot the table
-df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1), names_to = "pipeline", values_to = "s1")
+df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, easymribrain.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1, easymribrain.s1), names_to = "pipeline", values_to = "s1")
 
 # rename the pipelines to remove the .s1 and capitalize all
 df_s1$pipeline <- str_to_upper(df_s1$pipeline)
@@ -215,7 +232,7 @@ s1_plot <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = p
 #| eval = FALSE
 
 # select the aca colums and global exclude from df and pivot the table
-df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca), names_to = "pipeline", values_to = "aca")
+df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, easymribrain.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca, easymribrain.aca), names_to = "pipeline", values_to = "aca")
 
 # rename the pipelines to remove the .aca and capitalize all
 df_aca$pipeline <- str_to_upper(df_aca$pipeline)
@@ -238,7 +255,7 @@ aca_plot <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill 
 #| eval = FALSE
 
 # select the specificity colums from df and pivot the table
-df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di1.specificity) %>% pivot_longer(cols = c(spm.specificity, rabies.specificity, di1.specificity), names_to = "pipeline", values_to = "specific")
+df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity) %>% pivot_longer(cols = c(spm.specificity, rabies.specificity, di1.specificity, easymribrain.specificity), names_to = "pipeline", values_to = "specific")
 
 df_spec$pipeline <- str_remove(df_spec$pipeline, ".specificity")
 df_spec$pipeline <- str_to_upper(df_spec$pipeline)
@@ -267,4 +284,4 @@ combine_plot <- ggarrange(combine_spec, s1_plot, aca_plot, summary_plot, labels 
 ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 180, height = 120, unit = 'mm', dpi = 300)
 ```
 
-![figure_specificity]("assets/figures/pipeline_specificity.svg")
+![figure_specificity](assets/figures/pipeline_specificity.svg)
