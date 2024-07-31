@@ -39,6 +39,12 @@ sub-301106, registration
 ## DI2 
 pending...
 
+## easyMRIbrain
+sub-300300, missing
+sub-301506, missing
+sub-300306, registration
+sub-300400, registration
+
 ```{r}
 library(tidyverse)
 
@@ -48,15 +54,18 @@ spm <- c("sub-300406", "sub-300500")
 rabies <- c("sub-300301", "sub-300305", "sub-300507", "sub-300400", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
 di1 <- c("sub-300302", "sub-300502", "sub-301106")
 
+easyMRIbrain <- c("sub-300300", "sub-301506", "sub-300306", "sub-300400")
+
 # create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
 df <- df %>% 
   mutate(spm.exclude = ifelse(participant_id %in% spm, 1, 0),
          rabies.exclude = ifelse(participant_id %in% rabies, 1, 0),
-         di1.exclude = ifelse(participant_id %in% di1, 1, 0))
+         di1.exclude = ifelse(participant_id %in% di1, 1, 0),
+         easyMRIbrain.exclude = ifelse(participant_id %in% easyMRIbrain, 1, 0))
 
 # create an global.exclude column which is a 1 if the participant is excluded in at least one pipeline
 df <- df %>% 
-  mutate(global.exclude = ifelse(spm.exclude + rabies.exclude + di1.exclude > 0, 1, 0))
+  mutate(global.exclude = ifelse(spm.exclude + rabies.exclude + di1.exclude + easyMRIbrain.exclude > 0, 1, 0))
 
 
 write_tsv(df, "assets/table/participants_exclude.tsv")
