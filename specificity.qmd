@@ -17,7 +17,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-n.pipeline <- 5
+n.pipeline <- 7
 
 met <- met.brewer(color.scheme, n.pipeline)
 
@@ -46,94 +46,38 @@ pipeline_specificity <- function(cor_file) {
   }
 }
 
-
-df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
-
-# SPM pipeline variables init
-df$spm.s1 <- NA
-df$spm.aca <- NA
-df$spm.specificity <- NA
-
-spm_cor_files <- list.files("/project/4180000.41/data/cas_export/corr", full.names = TRUE)
-
-# RABIES pipeline variables init
-df$rabies.s1 <- NA
-df$rabies.aca <- NA
-df$rabies.specificity <- NA
-
-rabies_cor_files <- list.files("/project/4180000.41/data/rabies_export/corr", full.names = TRUE)
-
-# DI1 pipeline variables init
-df$di1.s1 <- NA
-df$di1.aca <- NA
-df$di1.specificity <- NA
-
-di1_cor_files <- list.files("/project/4180000.41/data/di1_export/corr", full.names = TRUE)
-
-# DI2 pipeline variables init
-df$di2.s1 <- NA
-df$di2.aca <- NA
-df$di2.specificity <- NA
-
-di2_cor_files <- list.files("/project/4180000.41/data/di2_export/corr", full.names = TRUE)
-
-# easymribrain pipeline variables init
-df$easymribrain.s1 <- NA
-df$easymribrain.aca <- NA
-df$easymribrain.specificity <- NA
-
-easymribrain_cor_files <- list.files("/project/4180000.41/data/garin_export/corr", full.names = TRUE)
-
-# the big loop that populates the table
-
-for (i in 1:nrow(df)) {
-  j<- str_which(spm_cor_files, df$participant_id[i])
-  if (length(j) == 1) {
-  
-  tmp <- pipeline_specificity(spm_cor_files[j])
-  df$spm.specificity[i] <- tmp[1]
-  df$spm.s1[i] <- tmp[2]
-  df$spm.aca[i] <- tmp[3] 
+#write a function that takes df, a path, and a string. Create columns in df with the specificity of the pipeline 
+populate_specificity <- function(df, path, pipeline) {
+  cor_files <- list.files(path, full.names = TRUE)
+  for (i in 1:nrow(df)) {
+    j<- str_which(cor_files, df$participant_id[i])
+    if (length(j) == 1) {
+      tmp <- pipeline_specificity(cor_files[j])
+      df[[paste0(pipeline, ".specificity")]][i] <- tmp[1]
+      df[[paste0(pipeline, ".s1")]][i] <- tmp[2]
+      df[[paste0(pipeline, ".aca")]][i] <- tmp[3]
+    }
+    else{
+      df[[paste0(pipeline, ".specificity")]][i] <- NA
+      df[[paste0(pipeline, ".s1")]][i] <- NA
+      df[[paste0(pipeline, ".aca")]][i] <- NA
+    }
   }
-
-  j<- str_which(rabies_cor_files, df$participant_id[i])
-  if (length(j) == 1) {
-
-  tmp <- pipeline_specificity(rabies_cor_files[j])
-  df$rabies.specificity[i] <- tmp[1]
-  df$rabies.s1[i] <- tmp[2]
-  df$rabies.aca[i] <- tmp[3]
-  }
-
-  j<- str_which(di1_cor_files, df$participant_id[i])
-  if (length(j) == 1) {
-
-  tmp <- pipeline_specificity(di1_cor_files[j])
-  df$di1.specificity[i] <- tmp[1]
-  df$di1.s1[i] <- tmp[2]
-  df$di1.aca[i] <- tmp[3]
-  }
-  
-  j<- str_which(di2_cor_files, df$participant_id[i])
-  if (length(j) == 1) {
-
-  tmp <- pipeline_specificity(di2_cor_files[j])
-  df$di2.specificity[i] <- tmp[1]
-  df$di2.s1[i] <- tmp[2]
-  df$di2.aca[i] <- tmp[3]
-  }
-
-  j<- str_which(easymribrain_cor_files, df$participant_id[i])
-  if (length(j) == 1) {
-
-  tmp <- pipeline_specificity(easymribrain_cor_files[j])
-  df$easymribrain.specificity[i] <- tmp[1]
-  df$easymribrain.s1[i] <- tmp[2]
-  df$easymribrain.aca[i] <- tmp[3]
-  } 
+  return(df)
 }
 
+# read the participants table and select the participant_id
+df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
 
+# populate the table with the specificity of each pipeline
+df <- populate_specificity(df, "/project/4180000.41/data/cas_export/corr", "spm")
+df <- populate_specificity(df, "/project/4180000.41/data/rabies_export/corr", "rabies")
+df <- populate_specificity(df, "/project/4180000.41/data/di1_export/corr", "di1")
+df <- populate_specificity(df, "/project/4180000.41/data/di2_export/corr", "di2")
+df <- populate_specificity(df, "/project/4180000.41/data/garin_export/corr", "easymribrain")
+df <- populate_specificity(df, "/project/4180000.41/data/aidamri_export/corr", "aidamri")
+
+# write the table
 write_tsv(df, "assets/table/participants_specificity.tsv")
 
 ```
@@ -147,34 +91,33 @@ df_exclude <- read_tsv("assets/table/participants_exclude.tsv", , show_col_types
 
 df <- df %>% full_join(df_exclude, by = "participant_id")
 
-# transform the specificity variales into factors
-df$spm.specificity <- as.factor(df$spm.specificity)
-df$rabies.specificity <- as.factor(df$rabies.specificity)
-df$di1.specificity <- as.factor(df$di1.specificity)
-df$di2.specificity <- as.factor(df$di2.specificity)
-df$easymribrain.specificity <- as.factor(df$easymribrain.specificity)
-
+# for every column in df ending with .specificity, convert the column to a factor
+for (i in 2:ncol(df)) {
+  if (str_detect(colnames(df)[i], "specificity")) {
+    df[[colnames(df)[i]]] <- as.factor(df[[colnames(df)[i]]])
+  }
+}
 ```
 
 ```{r}
 # look at specificity without filtering for data exclusion
-df %>% select(spm.specificity, rabies.specificity, di1.specificity, di2. easymribrain.specificity) %>% summary()
+df %>% select(spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity, aidamri.specificity) %>% summary()
 ```
 
 ```{r}
 # look at specificity after filtering for data exclusion
-df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity, aidamri.specificity) %>% summary()
 ```
 
 ```{r}
 # are the difference in specificity related to raw functional connectivity between s1?
-df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1, di2.s1, easymribrain.s1) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1, di2.s1, easymribrain.s1, aidamri.s1) %>% summary()
 
 ``` 
 
 ```{r}
 # are the difference in specificity related to raw functional connectivity between s1 and aca?
-df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca, di2.aca, easymribrain.aca) %>% summary()
+df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca, di2.aca, easymribrain.aca, aidamri.aca) %>% summary()
 
 ``` 
 
@@ -188,7 +131,7 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
   library(tidyverse)
   library(ggExtra)
 
-  p <- df %>% filter(!!sym(exclude) == 0) %>%
+  p <- df %>% filter(!!sym(exclude) != 0) %>%
     ggplot(aes(x = !!sym(x), 
                y = !!sym(y), 
                color = as.factor(global.exclude))) + 
@@ -216,7 +159,12 @@ rabies_spec <- pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.
 easymribrain_spec <- pipeline_specificity_plot(df, "easymribrain.s1", "easymribrain.aca", "easymribrain.exclude", "easyMRIbrain", met[3])
 di2_spec <- pipeline_specificity_plot(df, "di2.s1", "di2.aca", "di2.exclude", "DI2", met[4])
 di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[5])
-combine_spec <- ggarrange(spm_spec, rabies_spec, easymribrain_spec, di2_spec, di1_spec, ncol = 3, nrow = 2, labels = c("A", "B", "C", "D", "E"))
+aidamri_spec <- pipeline_specificity_plot(df, "aidamri.s1", "aidamri.aca", "aidamri.exclude", "AIDAmri", met[6])
+
+combine_spec <- ggarrange(spm_spec, rabies_spec, easymribrain_spec, aidamri_spec, di2_spec, di1_spec, ncol = 3, nrow = 2, labels = c("A", "B", "C", "D", "E", "F"))
+
+#make a tmp save of the plot
+ggsave("assets/tmp/specificity.png",plot=combine_spec, height=2000, width=2000, units='px')
 
 ```
 
