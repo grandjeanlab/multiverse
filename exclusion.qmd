@@ -51,7 +51,6 @@ sub-300807, registration
 sub-300808, registration
 sub-300809, registration
 
-
 ## easyMRIbrain
 4/209 excluded
 
@@ -60,7 +59,92 @@ sub-301506, missing
 sub-300306, registration
 sub-300400, registration
 
+## AIDAmri
+60/209 excluded
+
+30 excluded because of initial orientation
+30 excluded because of registration
+
+sub-300301, missing
+sub-300302, missing
+sub-300303, missing
+sub-300304, missing
+sub-300305, missing
+sub-300306, missing  
+sub-300307, missing
+sub-300308, missing
+sub-300309, missing
+sub-300600, missing
+sub-300601, missing
+sub-300602, missing
+sub-300603, missing
+sub-300604, missing
+sub-300605, missing
+sub-300606, missing
+sub-300607, missing
+sub-300608, missing
+sub-300609, missing
+sub-300800, missing  
+sub-300801, missing
+sub-300802, missing
+sub-300803, missing
+sub-300804, missing
+sub-300805, missing
+sub-300806, missing
+sub-300807, missing
+sub-300808, missing
+sub-300809, missing
+sub-302101, missing
+sub-300401, registration
+sub-300407, registration
+sub-300408, registration
+sub-300507, registration
+sub-300902, registration
+sub-300903, registration
+sub-300908, registration
+sub-300909, registration
+sub-301004, registration
+sub-301008, registration
+sub-301103, registration
+sub-301104, registration
+sub-301107, registration
+sub-301108, registration
+sub-301203, registration
+sub-301204, registration
+sub-301208, registration
+sub-301309, registration
+sub-301600, registration
+sub-301601, registration
+sub-301602, registration
+sub-301603, registration
+sub-301604, registration
+sub-301606, registration
+sub-301607, registration
+sub-301702, registration
+sub-301704, registration
+sub-301901, registration
+sub-301906, registration
+sub-302005, registration
+
+
 ```{r}
+#create a function add_exclude that takes df and a vector of participant_id to exclude and return df with a column exclude
+add_exclude <- function(df, exclude){
+  name <- deparse(substitute(exclude))
+  name <- paste0(name, ".exclude") 
+  df <- df %>% 
+    mutate(!!name := ifelse(participant_id %in% exclude, 0, 1))
+  return(df)
+}
+
+#create a function add_global_exclude that takes df and a string of the name of the column, multiply that column by the global.exclude column and save it go the global.exclude column, return df
+add_global_exclude <- function(df, name){
+  name <- paste0(name, ".exclude") 
+  df <- df %>% 
+    mutate(global.exclude = global.exclude * !!sym(name))
+  return(df)
+}
+
 library(tidyverse)
 
 df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
@@ -70,19 +154,28 @@ rabies <- c("sub-300301", "sub-300305", "sub-300507", "sub-300400", "sub-300800"
 di1 <- c("sub-300302", "sub-300502", "sub-301106")
 di2 <- c("sub-300502", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
 easymribrain <- c("sub-300300", "sub-301506", "sub-300306", "sub-300400")
+aidamri <- c("sub-300301", "sub-300302", "sub-300302", "sub-300303", "sub-300304", "sub-300305", "sub-300306", "ssub-300307", "sub-300308", "sub-300309", "sub-300600", "sub-300601", "sub-300602", "sub-300603", "sub-300604", "sub-300605", "sub-300606", "sub-300607", "sub-300608", "sub-300609", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809", "sub-302101", "sub-300401","sub-300407","sub-300408","sub-300507","sub-300902","sub-300903","sub-300908","sub-300909","sub-301004","sub-301008","sub-301103","sub-301104","sub-301107","sub-301108","sub-301203","sub-301204","sub-301208","sub-301309","sub-301600","sub-301601","sub-301602","sub-301603","sub-301604","sub-301606","sub-301607","sub-301702","sub-301704","sub-301901","sub-301906","sub-302005")
+
+
 
 # create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
-df <- df %>% 
-  mutate(spm.exclude = ifelse(participant_id %in% spm, 1, 0),
-         rabies.exclude = ifelse(participant_id %in% rabies, 1, 0),
-         di1.exclude = ifelse(participant_id %in% di1, 1, 0),
-         di2.exclude = ifelse(participant_id %in% di2, 1, 0),
-         easymribrain.exclude = ifelse(participant_id %in% easymribrain, 1, 0))
+df <- add_exclude(df, spm) 
+df <- add_exclude(df, rabies)
+df <- add_exclude(df, di1)
+df <- add_exclude(df, di2)
+df <- add_exclude(df, easymribrain)
+df <- add_exclude(df, aidamri)
 
-# create an global.exclude column which is a 1 if the participant is excluded in at least one pipeline
+# create an global.exclude column with 1 for all participants
 df <- df %>% 
-  mutate(global.exclude = ifelse(spm.exclude + rabies.exclude + di1.exclude + di2.exclude + easymribrain.exclude > 0, 1, 0))
+  mutate(global.exclude = 1)
 
+df <- add_global_exclude(df, "spm")
+df <- add_global_exclude(df, "rabies")
+df <- add_global_exclude(df, "di1")
+df <- add_global_exclude(df, "di2")
+df <- add_global_exclude(df, "easymribrain")
+df <- add_global_exclude(df, "aidamri")
 
 write_tsv(df, "assets/table/participants_exclude.tsv")
 ```
