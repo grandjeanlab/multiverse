@@ -41,12 +41,14 @@ https://openneuro.org/datasets/ds004116
 The link to SIGMA template for the registration. 
 https://zenodo.org/record/7829128
 
+If you want to use pre-made brain masks, I estimated some with BEN (https://github.com/yu02019/BEN).
+https://surfdrive.surf.nl/files/index.php/s/nvhz5eXVBxsaLgl
+
 ## The results
-As of June 18th 2024, we have 4 pipelines submitted: SPM, RABIES, Donders Institute #1 (DI1), and Donders Institute #2 (DI2).
+As of November 12th 2024, we have 7 pipelines submitted: SPM (two confound models), RABIES, Donders Institute #1 (DI1), and Donders Institute #2 (DI2), easymribrain, aidamri.
 
 1. [Pipeline descriptions](pipeline.md)
 2. [Data exclusion summary](exclusion.qmd)
-3. Motion parameters correlations between pipelines and frame exclusion (to do)
 4. [Connectivity specificity analysis](specificity.md) 
 5. Default mode network detection (to do)
 

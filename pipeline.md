@@ -2,6 +2,21 @@
 Joanes Grandjean
 2024-06-18
 
+# Summary of the pipelines
+
+|          | SPM    | RABIES                        | DI1             | DI2        |
+|----------|--------|-------------------------------|-----------------|------------|
+| Workflow | Matlab | Nypipe                        | Bash            | Nypipe     |
+| Toolkits | SPM    | ANTS, AFNI, FSL, minc-toolkit | ANTS, AFNI, FSL | ANTS, AFNI |
+
+# Summary of the confound models
+
+|             | SPM                           | RABIES           | DI1        | DI2        |
+|-------------|-------------------------------|------------------|------------|------------|
+| Bandpass    | 0.001 - 0.1                   | 0.01 - 0.2       | 0.01 - 0.1 | 0.01 - 0.1 |
+| Noise model | motion + derivatives + muscle | motion + compcor | ven + vasc | ven + vasc |
+| Smoothing   | 0.5                           | 0.5              | 0.4        | 0.4        |
+
 # SPM pipeline
 
 ## Owner and description.
@@ -92,7 +107,19 @@ and to be run reproducbily using Docker/apptainer.
 You can get the latest version of RABIES
 [here](https://github.com/CoBrALab/RABIES/releases).
 
+Here, the RABIES container was created from the master branch on
+20231215
+
 RABIES can be run using: `apptainer run rabies-${VERSION}.sif`
+
+the RABIES script for confound correction stage; for each dataset the
+strategy was: FD censoring with threshold of 0.075mm, regression of 6
+motion parameters and 5 aCompCor components, bandpass at 0.01-0.2Hz and
+smoothing with 0.5mm.
+
+`apptainer run -B /scratch/m/mchakrav/desgab/data/StandardRat:/nii_inputs:ro \ -B /scratch/m/mchakrav/desgab/data_preprocess/preprocess_StandardRat:/preprocess_StandardRat \ -B /home/m/mchakrav/desgab/atlases:/atlases:ro \ -B /scratch/m/mchakrav/desgab/data_preprocess/StandardRat_files:/StandardRat_files \ /home/m/mchakrav/desgab/singularity_images/rabies-master20231215.sif \ -p MultiProc --force  preprocess /nii_inputs /preprocess_StandardRat/rabies_StandardRat3001_20231106 \ --bids_filter /preprocess_StandardRat/preprocess_call/specs_3001.json \ --anatomical_resampling 0.25x0.25x0.25 \ --commonspace_resampling 0.3x0.3x0.3 \ --oblique2card affine \ --anat_template /atlases/jo_template/SIGMA_Wistar_Rat_Brain_TemplatesAndAtlases_Version1.1/SIGMA_Rat_Anatomical_Imaging/SIGMA_Rat_Anatomical_InVivo_Template/SIGMA_InVivo_Brain_Template.nii \ --brain_mask /atlases/jo_template/SIGMA_Wistar_Rat_Brain_TemplatesAndAtlases_Version1.1/SIGMA_Rat_Anatomical_Imaging/SIGMA_Rat_Anatomical_InVivo_Template/SIGMA_InVivo_Brain_Mask.nii \ --WM_mask /StandardRat_files/WM_mask_eroded.nii.gz \ --CSF_mask /StandardRat_files/CSF_mask_eroded.nii.gz \ --vascular_mask /StandardRat_files/CSF_mask_eroded.nii.gz \ --labels /StandardRat_files/labels_resampled.nii.gz \ --bold_robust_inho_cor apply=true,masking=false,brain_extraction=false,keep_mask_after_extract=false,template_registration=SyN \ --bold_inho_cor method=SyN,otsu_thresh=2,multiotsu=false`
+
+`apptainer run -B /scratch/m/mchakrav/desgab/data/StandardRat:/nii_inputs:ro -B /scratch/m/mchakrav/desgab/data_preprocess/preprocess_StandardRat:/preprocess_StandardRat -B /home/m/mchakrav/desgab/atlases:/atlases:ro -B /scratch/m/mchakrav/desgab/data_preprocess/StandardRat_files:/StandardRat_files /home/m/mchakrav/desgab/singularity_images/rabies-master20231215.sif  --local_threads 5 -p MultiProc --force  confound_correction /preprocess_StandardRat/rabies_StandardRat3001_20231106 /preprocess_StandardRat/rabies_StandardRat3001_20231106/mot6_aCompCor_FD_lowpass0.2 --smoothing_filter 0.5 --image_scaling grand_mean_scaling --conf_list mot_6 aCompCor_5 --frame_censoring FD_censoring=true,FD_threshold=0.075,DVARS_censoring=false,minimum_timepoint=666 --highpass 0.01 --edge_cutoff 30 --lowpass 0.2`
 
 ## Package summary
 
@@ -112,6 +139,27 @@ RABIES can be run using: `apptainer run rabies-${VERSION}.sif`
 |------------------|--------------------|----------|-----------------|
 | Apptainer        | Container platform | 1.1.5    | BSD-3           |
 | Slurm (optional) | Workflow manager   | 22.05.10 | unknown license |
+
+## Graphical summary of the RABIES pipeline.
+
+``` mermaid
+flowchart TD
+  A(BIDS Anat) --> B(Inho correction/Brain mask, minc-toolkit)
+  B --> C(Study template, ANTs)
+  C --> D(Anat to study template, ANTs)
+  B --> D
+  D --> E(study template to SIGMA, ANTs)
+
+  
+  F(BIDS Func) --> G(Inho correction/Brain mask, minc-toolkit)
+  G --> H(Func to Anat, ANTs)
+  F --> I(MotionCorr, ANTs)
+  I --> J(Func to Anat, ANTs)
+  J --> D  
+  D --> K(Denoise/bandpass/nuisance regression, RABIES)
+  K --> L(Cleaned func in SIGMA)
+
+```
 
 # DI1 pipeline
 
