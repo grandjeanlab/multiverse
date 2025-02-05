@@ -17,9 +17,9 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-n.pipeline <- 7
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming")
 
-met <- met.brewer(color.scheme, n.pipeline)
+met <- met.brewer(color.scheme, length(pipeline_list))
 
 ```
 
@@ -70,12 +70,9 @@ populate_specificity <- function(df, path, pipeline) {
 df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
 
 # populate the table with the specificity of each pipeline
-df <- populate_specificity(df, "/project/4180000.41/data/cas_export/corr", "spm")
-df <- populate_specificity(df, "/project/4180000.41/data/rabies_export/corr", "rabies")
-df <- populate_specificity(df, "/project/4180000.41/data/di1_export/corr", "di1")
-df <- populate_specificity(df, "/project/4180000.41/data/di2_export/corr", "di2")
-df <- populate_specificity(df, "/project/4180000.41/data/garin_export/corr", "easymribrain")
-df <- populate_specificity(df, "/project/4180000.41/data/aidamri_export/corr", "aidamri")
+for(i in 1:length(pipeline_list)){
+  df <- populate_specificity(df, paste0("/project/4180000.41/data/", pipeline_list[i], "_export/corr"), pipeline_list[i])
+}
 
 # write the table
 write_tsv(df, "assets/table/participants_specificity.tsv")
@@ -97,27 +94,29 @@ for (i in 2:ncol(df)) {
     df[[colnames(df)[i]]] <- as.factor(df[[colnames(df)[i]]])
   }
 }
+
 ```
 
 ```{r}
 # look at specificity without filtering for data exclusion
-df %>% select(spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity, aidamri.specificity) %>% summary()
+df %>% select(paste0(pipeline_list,".specificity")) %>% summary()
 ```
 
 ```{r}
 # look at specificity after filtering for data exclusion
-df %>% filter(global.exclude == 0) %>% select(spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity, aidamri.specificity) %>% summary()
+df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".specificity")) %>% summary()
+
 ```
 
 ```{r}
 # are the difference in specificity related to raw functional connectivity between s1?
-df %>% filter(global.exclude == 0) %>% select(spm.s1, rabies.s1, di1.s1, di2.s1, easymribrain.s1, aidamri.s1) %>% summary()
+df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% summary()
 
 ``` 
 
 ```{r}
 # are the difference in specificity related to raw functional connectivity between s1 and aca?
-df %>% filter(global.exclude == 0) %>% select(spm.aca, rabies.aca, di1.aca, di2.aca, easymribrain.aca, aidamri.aca) %>% summary()
+df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% summary()
 
 ``` 
 
@@ -143,7 +142,7 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
     xlim(-0.5, 1) + 
     ylim(-0.5, 1) + 
     #labs(title = pipeline, x = "S1 - S1 [r]", y = "S1 - ACA [r]") +
-    scale_color_manual(values = c(met, "darkgrey")) +
+    scale_color_manual(values = c("darkgrey", met)) +
     theme_classic() +
     theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank()) 
 
@@ -152,16 +151,13 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
   return(m)
 }
 
+#write a loop that creates a plot for each pipeline based on an array of strings containing the pipeline names.
 
+for(i in 1:length(pipeline_list)){
+  assign(paste0(pipeline_list[i], "_spec"), pipeline_specificity_plot(df, paste0(pipeline_list[i], ".s1"), paste0(pipeline_list[i], ".aca"), paste0(pipeline_list[i], ".exclude"), pipeline_list[i], met[i]))
+}
 
-spm_spec <- pipeline_specificity_plot(df, "spm.s1", "spm.aca", "spm.exclude", "SPM", met[1])
-rabies_spec <- pipeline_specificity_plot(df, "rabies.s1", "rabies.aca", "rabies.exclude", "RABIES", met[2])
-easymribrain_spec <- pipeline_specificity_plot(df, "easymribrain.s1", "easymribrain.aca", "easymribrain.exclude", "easyMRIbrain", met[3])
-di2_spec <- pipeline_specificity_plot(df, "di2.s1", "di2.aca", "di2.exclude", "DI2", met[4])
-di1_spec <- pipeline_specificity_plot(df, "di1.s1", "di1.aca", "di1.exclude", "DI1", met[5])
-aidamri_spec <- pipeline_specificity_plot(df, "aidamri.s1", "aidamri.aca", "aidamri.exclude", "AIDAmri", met[6])
-
-combine_spec <- ggarrange(spm_spec, rabies_spec, easymribrain_spec, aidamri_spec, di2_spec, di1_spec, ncol = 3, nrow = 2, labels = c("A", "B", "C", "D", "E", "F"))
+combine_spec <- ggarrange(plotlist=mget(paste0(pipeline_list,"_spec")), labels = LETTERS[1:length(pipeline_list)])
 
 #make a tmp save of the plot
 ggsave("assets/tmp/specificity.png",plot=combine_spec, height=2000, width=2000, units='px')
@@ -172,14 +168,14 @@ ggsave("assets/tmp/specificity.png",plot=combine_spec, height=2000, width=2000, 
 ```{r}
 #| eval = FALSE
 
-
-
 # select the s1 colums and global exclude from df and pivot the table
-df_s1 <- df %>% select(participant_id, spm.s1, rabies.s1, di1.s1, di2.s1, easymribrain.s1, global.exclude) %>% pivot_longer(cols = c(spm.s1, rabies.s1, di1.s1, di2.s1, easymribrain.s1), names_to = "pipeline", values_to = "s1")
+df_s1 <- df %>% select(paste0(pipeline_list,".s1"),participant_id,  global.exclude) %>% pivot_longer(cols = paste0(pipeline_list,".s1"), names_to = "pipeline", values_to = "s1")
 
 # rename the pipelines to remove the .s1 and capitalize all
-df_s1$pipeline <- str_to_upper(df_s1$pipeline)
-df_s1$pipeline <- str_remove(df_s1$pipeline, ".S1")
+df_s1$pipeline <- str_remove(df_s1$pipeline, ".s1")
+
+#convert the pipeline to a factor and order it according to inverse of pipeline_list
+df_s1$pipeline <- factor(df_s1$pipeline, levels = rev(pipeline_list))
 
 s1_plot <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = pipeline)) + 
   stat_slab(aes(thickness = after_stat(pdf*n)), scale = 0.5) + 
@@ -198,22 +194,23 @@ s1_plot <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = p
 #| eval = FALSE
 
 # select the aca colums and global exclude from df and pivot the table
-df_aca <- df %>% select(participant_id, spm.aca, rabies.aca, di1.aca, di2.aca, easymribrain.aca, global.exclude) %>% pivot_longer(cols = c(spm.aca, rabies.aca, di1.aca, di2.aca, easymribrain.aca), names_to = "pipeline", values_to = "aca")
+df_aca <- df %>% select(paste0(pipeline_list,".aca"),participant_id,  global.exclude) %>% pivot_longer(cols = paste0(pipeline_list,".aca"), names_to = "pipeline", values_to = "aca")
 
 # rename the pipelines to remove the .aca and capitalize all
-df_aca$pipeline <- str_to_upper(df_aca$pipeline)
-df_aca$pipeline <- str_remove(df_aca$pipeline, ".ACA")
+df_aca$pipeline <- str_remove(df_aca$pipeline, ".aca")
 
+#convert the pipeline to a factor and order it according to inverse of pipeline_list
+df_aca$pipeline <- factor(df_aca$pipeline, levels = pipeline_list)
 
 aca_plot <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill = pipeline)) + 
   stat_slab(aes(thickness = after_stat(pdf*n)), scale = 0.5) + 
   stat_dotsinterval(side = "bottom", scale = 0.2, slab_linewidth = NA) +
   geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
-  scale_fill_manual(values = rev(met)) +
+  scale_fill_manual(values = met) +
   ylim(-0.5, 1) +
   theme_classic() + 
   theme(legend.position = "none", axis.title.x = element_blank()) + 
-  labs(title = "Non-specific correlation", y = "S1 - ACA [r]")
+  labs(title = "Non-specific correlation", y = "S1 - ACA [r]") 
 
 ```
 
@@ -221,23 +218,27 @@ aca_plot <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill 
 #| eval = FALSE
 
 # select the specificity colums from df and pivot the table
-df_spec <- df %>% select(participant_id, spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity) %>% pivot_longer(cols = c(spm.specificity, rabies.specificity, di1.specificity, di2.specificity, easymribrain.specificity), names_to = "pipeline", values_to = "specific")
+df_spec <- df %>% select(participant_id, paste0(pipeline_list,".specificity")) %>%  
+  pivot_longer(cols = paste0(pipeline_list,".specificity"), names_to = "pipeline", values_to = "specific")
 
 df_spec$pipeline <- str_remove(df_spec$pipeline, ".specificity")
-df_spec$pipeline <- str_to_upper(df_spec$pipeline)
+
+df_spec$pipeline <- factor(df_spec$pipeline, levels = pipeline_list)
+
+
+df_spec$specific <- factor(df_spec$specific, levels = c(NA,"no", "non-specific", "spurious","specific"), exclude = NULL)
 
 summary_plot <- df_spec %>% ggplot(aes(x = pipeline,  
                        group = specific, 
                        fill = specific)) + 
   geom_bar() +
-  scale_fill_manual(values = met.brewer("VanGogh2",5)) +
+scale_fill_manual(values = met.brewer("VanGogh2",4)) +
   theme_classic() + 
   theme(legend.position = "none", 
         axis.title.x = element_blank(), 
         axis.line.x = element_blank(), 
         axis.ticks.x = element_blank()) +
-  labs(y = "# scans")
-    
+  labs(y = "# scans") 
 
 ```
 
@@ -245,9 +246,9 @@ summary_plot <- df_spec %>% ggplot(aes(x = pipeline,
 ```{r}
 #| eval = FALSE
 
-combine_misc <- ggarrange(s1_plot, aca_plot, summary_plot, labels = c("F", "G", "H"), ncol = 3, nrow = 1)
+combine_misc <- ggarrange(s1_plot, aca_plot, summary_plot, labels = LETTERS[length(pipeline_list)+1:+3], ncol = 3, nrow = 1)
 
-combine_plot <- ggarrange(combine_spec, combine_misc , ncol = 1, nrow = 2)
+combine_plot <- ggarrange(combine_spec, combine_misc , ncol = 1, nrow = 2, heights = c(1, 0.5))
 
 ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 180, height = 120, unit = 'mm', dpi = 300)
 

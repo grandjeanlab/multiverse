@@ -126,6 +126,8 @@ sub-301901, registration
 sub-301906, registration
 sub-302005, registration
 
+# liming
+0/209 excluded
 
 ```{r}
 #create a function add_exclude that takes df and a vector of participant_id to exclude and return df with a column exclude
@@ -156,26 +158,32 @@ di2 <- c("sub-300502", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "
 easymribrain <- c("sub-300300", "sub-301506", "sub-300306", "sub-300400")
 aidamri <- c("sub-300301", "sub-300302", "sub-300302", "sub-300303", "sub-300304", "sub-300305", "sub-300306", "ssub-300307", "sub-300308", "sub-300309", "sub-300600", "sub-300601", "sub-300602", "sub-300603", "sub-300604", "sub-300605", "sub-300606", "sub-300607", "sub-300608", "sub-300609", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809", "sub-302101", "sub-300401","sub-300407","sub-300408","sub-300507","sub-300902","sub-300903","sub-300908","sub-300909","sub-301004","sub-301008","sub-301103","sub-301104","sub-301107","sub-301108","sub-301203","sub-301204","sub-301208","sub-301309","sub-301600","sub-301601","sub-301602","sub-301603","sub-301604","sub-301606","sub-301607","sub-301702","sub-301704","sub-301901","sub-301906","sub-302005")
 
-
+spmcomcor <- spm
+spmgsr <- spm
+liming <- c()
 
 # create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
-df <- add_exclude(df, spm) 
+df <- add_exclude(df, spmcomcor)
+df <- add_exclude(df, spmgsr)
 df <- add_exclude(df, rabies)
 df <- add_exclude(df, di1)
 df <- add_exclude(df, di2)
 df <- add_exclude(df, easymribrain)
 df <- add_exclude(df, aidamri)
+df <- add_exclude(df, liming)
 
 # create an global.exclude column with 1 for all participants
 df <- df %>% 
   mutate(global.exclude = 1)
 
-df <- add_global_exclude(df, "spm")
+df <- add_global_exclude(df, "spmcomcor")
+df <- add_global_exclude(df, "spmgsr")
 df <- add_global_exclude(df, "rabies")
 df <- add_global_exclude(df, "di1")
 df <- add_global_exclude(df, "di2")
 df <- add_global_exclude(df, "easymribrain")
 df <- add_global_exclude(df, "aidamri")
+df <- add_global_exclude(df, "liming")
 
 write_tsv(df, "assets/table/participants_exclude.tsv")
 ```
