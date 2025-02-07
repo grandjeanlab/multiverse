@@ -303,7 +303,46 @@ flowchart TD
 
 ```
 
+# Russo pipeline. 
 
+## Owner and use.
+Russo et al. 
 
+## Pipeline description
+Despiking (3dDespike -NEW25)
+Motion Correction (3dvolreg)
+Functional Brain Extraction using fslmaths with existing functional masks (using BEN)
+Anatomical Brain Extraction using fslmaths with existing anatomical masks (using BEN)
+Spatial Smoothing (3dBlurInMask, dynamically calculating for each dataset 1.5x the voxel size)
+Band-Pass Filtering (0.01-0.1 Hz, 3dTproject polort 2)
+Registration and Transformation To Standard SIGMA space (flirt)
+
+Affiliation: Gabriele Russo, Department of Translational Biomedicine and Neuroscience, University of Bari Aldo Moro, Bari, Italy. gabriele.russo@uniba.it
+
+## Package summary
+| Software | Type | Version | License | 
+| - | - | - | - |
+| AFNI | preprocessing | - | GNU GPL v2 | 
+| FSL | preprocessing | - | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) | 
+| BEN | masking | - | academic | 
+
+## Graphical summary of the DI2 pipeline.
+```{mermaid}
+flowchart TD
+  A(BIDS Anat) --> B(Masking, BEN)
+  B --> C(Anat to SIGMA, FSL)
+  A --> C(Anat to SIGMA, FSL)
+  
+
+  E(BIDS Func) --> F(Despike, AFNI)
+  F --> G(MotionCorr, AFNI)
+  G --> H(Masking, BEN/FSL)
+  H --> I(Smoothing, AFNI)
+  I --> J(Bandpass, AFNI)
+  J --> K(Func to SIGMA, FSL)  
+  C --> L
+  K --> L(Cleaned func in SIGMA)
+
+```
 
 

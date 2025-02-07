@@ -2,7 +2,7 @@
 Joanes Grandjean
 2024-06-18
 
-## load the all the libraries used on this notebook and set important variables
+## load the all the libraries used on this notebook and set important variable
 
 ``` r
 library(tidyverse)
@@ -11,7 +11,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming")
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming", "russo")
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 ```
@@ -22,6 +22,12 @@ met <- met.brewer(color.scheme, length(pipeline_list))
 # write a function that reads a table and returns the specificity of the pipeline
 pipeline_specificity <- function(cor_file) {
   cor_tmp <- read_table(cor_file, col_names = FALSE, show_col_types = FALSE)
+  
+#check if cor_tmp is empty and if so, return NA
+  if(nrow(cor_tmp) == 0) {
+    return(c(NA, NA, NA))
+  }
+
   s1 <- cor_tmp$X2[1]
   aca <- cor_tmp$X3[2]
   
@@ -61,6 +67,7 @@ df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
 
 # populate the table with the specificity of each pipeline
 for(i in 1:length(pipeline_list)){
+  print(c('processing ',pipeline_list[i]))
   df <- populate_specificity(df, paste0("/project/4180000.41/data/", pipeline_list[i], "_export/corr"), pipeline_list[i])
 }
 
@@ -101,12 +108,12 @@ df %>% select(paste0(pipeline_list,".specificity")) %>% summary()
      specific    :78          specific    : 71    specific    :131   
      spurious    :89          spurious    :112    spurious    : 49   
      NA's        : 2                                                 
-       aidamri.specificity    liming.specificity
-     no          : 15      no          : 13     
-     non-specific: 18      non-specific:  6     
-     specific    : 32      specific    : 74     
-     spurious    :114      spurious    :116     
-     NA's        : 30                           
+       aidamri.specificity    liming.specificity    russo.specificity
+     no          : 15      no          : 13      no          : 13    
+     non-specific: 18      non-specific:  6      non-specific:  2    
+     specific    : 32      specific    : 74      specific    : 30    
+     spurious    :114      spurious    :116      spurious    :161    
+     NA's        : 30                            NA's        :  3    
 
 ``` r
 # look at specificity after filtering for data exclusion
@@ -125,12 +132,12 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".specificity
      specific    :57          specific    :54     specific    :97    
      spurious    :59          spurious    :70     spurious    :22    
      NA's        : 1                                                 
-       aidamri.specificity    liming.specificity
-     no          :11       no          :10      
-     non-specific:12       non-specific: 5      
-     specific    :25       specific    :59      
-     spurious    :95       spurious    :70      
-     NA's        : 1                            
+       aidamri.specificity    liming.specificity    russo.specificity
+     no          :11       no          :10       no          : 12    
+     non-specific:12       non-specific: 5       non-specific:  2    
+     specific    :25       specific    :59       specific    : 26    
+     spurious    :95       spurious    :70       spurious    :104    
+     NA's        : 1                                                 
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1?
@@ -153,6 +160,14 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
      3rd Qu.: 0.5303   3rd Qu.: 0.46134   3rd Qu.: 0.6580   3rd Qu.: 0.51140  
      Max.   : 0.9307   Max.   : 0.78341   Max.   : 0.9322   Max.   : 0.85363  
                                           NA's   :1                           
+        russo.s1       
+     Min.   :-0.09044  
+     1st Qu.: 0.20945  
+     Median : 0.38896  
+     Mean   : 0.42350  
+     3rd Qu.: 0.61492  
+     Max.   : 0.90118  
+                       
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1 and aca?
@@ -175,6 +190,14 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
      3rd Qu.: 0.23528   3rd Qu.: 0.02131   3rd Qu.: 0.55332   3rd Qu.: 0.23508  
      Max.   : 0.76025   Max.   : 0.37626   Max.   : 0.92606   Max.   : 0.71030  
                                            NA's   :1                            
+       russo.aca       
+     Min.   :-0.37282  
+     1st Qu.: 0.09581  
+     Median : 0.20298  
+     Mean   : 0.22297  
+     3rd Qu.: 0.33408  
+     Max.   : 0.65455  
+                       
 
 ## this section plots pipeline specificity for each pipeline
 

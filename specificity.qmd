@@ -8,7 +8,7 @@ execute:
 ---
 
 
-## load the all the libraries used on this notebook and set important variables
+## load the all the libraries used on this notebook and set important variable
 ```{r}
 
 library(tidyverse)
@@ -17,7 +17,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming")
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming", "russo")
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 
@@ -32,6 +32,12 @@ met <- met.brewer(color.scheme, length(pipeline_list))
 # write a function that reads a table and returns the specificity of the pipeline
 pipeline_specificity <- function(cor_file) {
   cor_tmp <- read_table(cor_file, col_names = FALSE, show_col_types = FALSE)
+  
+#check if cor_tmp is empty and if so, return NA
+  if(nrow(cor_tmp) == 0) {
+    return(c(NA, NA, NA))
+  }
+
   s1 <- cor_tmp$X2[1]
   aca <- cor_tmp$X3[2]
   
@@ -71,6 +77,7 @@ df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
 
 # populate the table with the specificity of each pipeline
 for(i in 1:length(pipeline_list)){
+  print(c('processing ',pipeline_list[i]))
   df <- populate_specificity(df, paste0("/project/4180000.41/data/", pipeline_list[i], "_export/corr"), pipeline_list[i])
 }
 
