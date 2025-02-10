@@ -333,6 +333,7 @@ Pending publication details
 ## Graphical summary of the EDNiX pipeline.
 
 ``` mermaid
+flowchart TD
 A(BIDS Anat) --> B(Anat to SIGMA, ANTS)
 
 C(BIDS Func) --> D(Volume remove, AFNI)
