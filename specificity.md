@@ -11,7 +11,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednix", "di2", "di1", "aidamri", "liming", "russo")
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednix", "di2", "di1", "aidamri", "liming", "roam")
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 ```
@@ -108,7 +108,7 @@ df %>% select(paste0(pipeline_list,".specificity")) %>% summary()
      specific    :63      specific    : 71    specific    :131   
      spurious    :68      spurious    :112    spurious    : 49   
      NA's        :30                                             
-       aidamri.specificity    liming.specificity    russo.specificity
+       aidamri.specificity    liming.specificity     roam.specificity
      no          : 15      no          : 13      no          : 13    
      non-specific: 18      non-specific:  6      non-specific:  2    
      specific    : 32      specific    : 74      specific    : 30    
@@ -132,7 +132,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".specificity
      specific    :51      specific    :54     specific    :98    
      spurious    :54      spurious    :70     spurious    :21    
      NA's        : 1                                             
-       aidamri.specificity    liming.specificity    russo.specificity
+       aidamri.specificity    liming.specificity     roam.specificity
      no          :11       no          :11       no          : 12    
      non-specific:12       non-specific: 5       non-specific:  2    
      specific    :25       specific    :59       specific    : 26    
@@ -160,7 +160,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
      3rd Qu.: 0.5303   3rd Qu.: 0.44855   3rd Qu.: 0.6572   3rd Qu.: 0.51140  
      Max.   : 0.9307   Max.   : 0.78341   Max.   : 0.9322   Max.   : 0.85363  
                                                                               
-        russo.s1       
+        roam.s1        
      Min.   :-0.09044  
      1st Qu.: 0.20945  
      Median : 0.37634  
@@ -190,7 +190,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
      3rd Qu.: 0.22281   3rd Qu.: 0.01933   3rd Qu.: 0.55266   3rd Qu.: 0.22670  
      Max.   : 0.76025   Max.   : 0.37511   Max.   : 0.92606   Max.   : 0.71030  
                                                                                 
-       russo.aca       
+        roam.aca       
      Min.   :-0.37282  
      1st Qu.: 0.09581  
      Median : 0.20298  

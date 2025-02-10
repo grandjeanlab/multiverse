@@ -155,7 +155,7 @@ sub-302005, registration
 # liming
 0/209 excluded
 
-# russo
+# ROAM
 9/209 excluded
 
 sub-300603, registration
@@ -209,7 +209,7 @@ spmgsr <- spm
 
 liming <- c()
 
-russo <- c("sub_300603", "sub_300604", "sub_300607", "sub_300608", "sub_300609", "sub_300800", "sub_300801", "sub_301308", "sub_301309")
+roam <- c("sub_300603", "sub_300604", "sub_300607", "sub_300608", "sub_300609", "sub_300800", "sub_300801", "sub_301308", "sub_301309")
 
 # create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
 df <- add_exclude(df, spmcomcor)
@@ -221,7 +221,7 @@ df <- add_exclude(df, easymribrain)
 df <- add_exclude(df, ednix)
 df <- add_exclude(df, aidamri)
 df <- add_exclude(df, liming)
-df <- add_exclude(df, russo)
+df <- add_exclude(df, roam)
 
 # create an global.exclude column with 1 for all participants
 df <- df %>% 
@@ -236,7 +236,7 @@ df <- add_global_exclude(df, "easymribrain")
 df <- add_global_exclude(df, "ednix")
 df <- add_global_exclude(df, "aidamri")
 df <- add_global_exclude(df, "liming")
-df <- add_global_exclude(df, "russo")
+df <- add_global_exclude(df, "roam")
 
 write_tsv(df, "assets/table/participants_exclude.tsv")
 ```

@@ -337,7 +337,7 @@ flowchart TD
 
 ```
 
-# Russo pipeline. 
+# ROAM pipeline (Rodent fMRI Analysis and Mapping). 
 
 ## Owner and use.
 Russo et al. 
@@ -351,7 +351,8 @@ Spatial Smoothing (3dBlurInMask, dynamically calculating for each dataset 1.5x t
 Band-Pass Filtering (0.01-0.1 Hz, 3dTproject polort 2)
 Registration and Transformation To Standard SIGMA space (flirt)
 
-Affiliation: Gabriele Russo, Department of Translational Biomedicine and Neuroscience, University of Bari Aldo Moro, Bari, Italy. gabriele.russo@uniba.it
+Affiliation: Gabriele Russo, Department of Translational Biomedicine and Neuroscience, University of Bari Aldo Moro, Bari, Italy. 
+
 
 ## Package summary
 | Software | Type | Version | License | 

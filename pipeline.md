@@ -396,7 +396,7 @@ flowchart TD
 
 ```
 
-# Russo pipeline.
+# ROAM pipeline (Rodent fMRI Analysis and Mapping).
 
 ## Owner and use.
 
@@ -414,7 +414,6 @@ Standard SIGMA space (flirt)
 
 Affiliation: Gabriele Russo, Department of Translational Biomedicine and
 Neuroscience, University of Bari Aldo Moro, Bari, Italy.
-gabriele.russo@uniba.it
 
 ## Package summary
 
