@@ -17,7 +17,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming", "russo")
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednix", "di2", "di1", "aidamri", "liming", "russo")
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 
@@ -241,7 +241,7 @@ summary_plot <- df_spec %>% ggplot(aes(x = pipeline,
   geom_bar() +
 scale_fill_manual(values = met.brewer("VanGogh2",4)) +
   theme_classic() + 
-  theme(legend.position = "none", 
+  theme(legend.position = "bottom", 
         axis.title.x = element_blank(), 
         axis.line.x = element_blank(), 
         axis.ticks.x = element_blank()) +

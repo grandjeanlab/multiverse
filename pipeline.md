@@ -313,6 +313,43 @@ flowchart TD
 
 ```
 
+\#EDNiX pipeline.
+
+## Owner and use.
+
+Clément garin, Suliann Ben Hamed, Simon Clavagnier.
+
+Pending publication details
+
+## Package summary
+
+| Software | Type                    | Version | License                                                                        |
+|----------|-------------------------|---------|--------------------------------------------------------------------------------|
+| AFNI     | preprocessing           | \-      | GNU GPL v2                                                                     |
+| ANTs     | preprocessing           | \-      | Apache-2                                                                       |
+| FSL      | preprocessing           | \-      | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
+| Nipype   | python workflow manager | \-      | Apache-2                                                                       |
+
+## Graphical summary of the EDNiX pipeline.
+
+``` mermaid
+A(BIDS Anat) --> B(Anat to SIGMA, ANTS)
+
+C(BIDS Func) --> D(Volume remove, AFNI)
+D --> E(Despike, AFNI)
+E --> F(Slice timing correction, AFNI)
+F --> G(MotionCorr, AFNI)
+G --> H(Frame censoring, AFNI)
+H --> I(N4, ANTS)
+I --> J(distortion correction, FSL)
+J --> K(Func to Anat, ANTS)
+J --> L(ICA, FSL)
+L --> M(denoise, AFNI)
+M --> N(apply transforms, ANTS)
+J --> N
+B --> N
+```
+
 # Liming pipeline.
 
 ## Owner and use.
@@ -332,7 +369,7 @@ Masking done with [2D U-Net](https://doi.org/10.3389/fnins.2020.568614),
 | ANTs     | preprocessing | x       | Apache-2   |
 | FSL      | preprocessing | x       | PSFL       |
 
-## Graphical summary of the DI2 pipeline.
+## Graphical summary of the Liming pipeline.
 
 ``` mermaid
 flowchart TD

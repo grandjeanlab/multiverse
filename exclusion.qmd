@@ -51,13 +51,39 @@ sub-300807, registration
 sub-300808, registration
 sub-300809, registration
 
-## easyMRIbrain
-4/209 excluded
+## EDNiX
+29/209 excluded
 
-sub-300300, missing
-sub-301506, missing
-sub-300306, registration
-sub-300400, registration
+sub-300301, missing (orientation error)
+sub-300302, missing (orientation error)
+sub-300303, missing (orientation error)
+sub-300304, missing (orientation error)
+sub-300305, missing (orientation error)
+sub-300306, missing (orientation error)
+sub-300307, missing (orientation error)
+sub-300308, missing (orientation error)
+sub-300309, missing (orientation error)
+sub-300600, missing (orientation error)
+sub-300601, missing (orientation error)
+sub-300602, missing (orientation error)
+sub-300603, missing (orientation error)
+sub-300604, missing (orientation error)
+sub-300605, missing (orientation error)
+sub-300606, missing (orientation error)
+sub-300607, missing (orientation error)
+sub-300608, missing (orientation error)
+sub-300609, missing (orientation error)
+sub-300800, missing (orientation error)
+sub-300801, missing (orientation error)
+sub-300802, missing (orientation error)
+sub-300803, missing (orientation error)
+sub-300804, missing (orientation error)
+sub-300805, missing (orientation error)
+sub-300806, missing (orientation error)
+sub-300807, missing (orientation error)
+sub-300808, missing (orientation error)
+sub-300809, missing (orientation error)
+
 
 ## AIDAmri
 60/209 excluded
@@ -132,15 +158,15 @@ sub-302005, registration
 # russo
 9/209 excluded
 
-sub_300603, registration
-sub_300604, registration
-sub_300607, registration
-sub_300608, registration
-sub_300609, registration
-sub_300800, registration
-sub_300801, registration
-sub_301308, registration
-sub_301309, registration
+sub-300603, registration
+sub-300604, registration
+sub-300607, registration
+sub-300608, registration
+sub-300609, registration
+sub-300800, registration
+sub-300801, registration
+sub-301308, registration
+sub-301309, registration
 
 
 ```{r}
@@ -173,7 +199,7 @@ di1 <- c("sub-300302", "sub-300502", "sub-301106")
 
 di2 <- c("sub-300502", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
 
-easymribrain <- c("sub-300300", "sub-301506", "sub-300306", "sub-300400")
+ ednix <-c("sub-300301", "sub-300302", "sub-300303", "sub-300304", "sub-300305", "sub-300306", "sub-300307", "sub-300308", "sub-300309", "sub-300600", "sub-300601", "sub-300602", "sub-300603", "sub-300604", "sub-300605", "sub-300606", "sub-300607", "sub-300608", "sub-300609", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
 
 aidamri <- c("sub-300301", "sub-300302", "sub-300302", "sub-300303", "sub-300304", "sub-300305", "sub-300306", "ssub-300307", "sub-300308", "sub-300309", "sub-300600", "sub-300601", "sub-300602", "sub-300603", "sub-300604", "sub-300605", "sub-300606", "sub-300607", "sub-300608", "sub-300609", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809", "sub-302101", "sub-300401","sub-300407","sub-300408","sub-300507","sub-300902","sub-300903","sub-300908","sub-300909","sub-301004","sub-301008","sub-301103","sub-301104","sub-301107","sub-301108","sub-301203","sub-301204","sub-301208","sub-301309","sub-301600","sub-301601","sub-301602","sub-301603","sub-301604","sub-301606","sub-301607","sub-301702","sub-301704","sub-301901","sub-301906","sub-302005")
 
@@ -192,6 +218,7 @@ df <- add_exclude(df, rabies)
 df <- add_exclude(df, di1)
 df <- add_exclude(df, di2)
 df <- add_exclude(df, easymribrain)
+df <- add_exclude(df, ednix)
 df <- add_exclude(df, aidamri)
 df <- add_exclude(df, liming)
 df <- add_exclude(df, russo)
@@ -206,6 +233,7 @@ df <- add_global_exclude(df, "rabies")
 df <- add_global_exclude(df, "di1")
 df <- add_global_exclude(df, "di2")
 df <- add_global_exclude(df, "easymribrain")
+df <- add_global_exclude(df, "ednix")
 df <- add_global_exclude(df, "aidamri")
 df <- add_global_exclude(df, "liming")
 df <- add_global_exclude(df, "russo")

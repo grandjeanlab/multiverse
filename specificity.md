@@ -11,7 +11,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "easymribrain", "di2", "di1", "aidamri", "liming", "russo")
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednix", "di2", "di1", "aidamri", "liming", "russo")
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 ```
@@ -102,12 +102,12 @@ df %>% select(paste0(pipeline_list,".specificity")) %>% summary()
      specific    : 58       specific    :95       specific    :111     
      spurious    :135       spurious    :56       spurious    : 58     
                                                   NA's        : 14     
-     easymribrain.specificity     di2.specificity     di1.specificity
-     no          :29          no          : 17    no          : 22   
-     non-specific:11          non-specific:  9    non-specific:  7   
-     specific    :78          specific    : 71    specific    :131   
-     spurious    :89          spurious    :112    spurious    : 49   
-     NA's        : 2                                                 
+        ednix.specificity     di2.specificity     di1.specificity
+     no          :36      no          : 17    no          : 22   
+     non-specific:12      non-specific:  9    non-specific:  7   
+     specific    :63      specific    : 71    specific    :131   
+     spurious    :68      spurious    :112    spurious    : 49   
+     NA's        :30                                             
        aidamri.specificity    liming.specificity    russo.specificity
      no          : 15      no          : 13      no          : 13    
      non-specific: 18      non-specific:  6      non-specific:  2    
@@ -123,48 +123,48 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".specificity
       spmcomcor.specificity    spmgsr.specificity    rabies.specificity
      no          :10        no          :30       no          :19      
      non-specific: 2        non-specific:17       non-specific: 2      
-     specific    :46        specific    :62       specific    :82      
-     spurious    :86        spurious    :35       spurious    :41      
+     specific    :46        specific    :61       specific    :82      
+     spurious    :86        spurious    :36       spurious    :41      
                                                                        
-     easymribrain.specificity     di2.specificity     di1.specificity
-     no          :22          no          :12     no          :19    
-     non-specific: 5          non-specific: 8     non-specific: 6    
-     specific    :57          specific    :54     specific    :97    
-     spurious    :59          spurious    :70     spurious    :22    
-     NA's        : 1                                                 
+        ednix.specificity     di2.specificity     di1.specificity
+     no          :27      no          :12     no          :19    
+     non-specific:11      non-specific: 8     non-specific: 6    
+     specific    :51      specific    :54     specific    :98    
+     spurious    :54      spurious    :70     spurious    :21    
+     NA's        : 1                                             
        aidamri.specificity    liming.specificity    russo.specificity
-     no          :11       no          :10       no          : 12    
+     no          :11       no          :11       no          : 12    
      non-specific:12       non-specific: 5       non-specific:  2    
      specific    :25       specific    :59       specific    : 26    
-     spurious    :95       spurious    :70       spurious    :104    
-     NA's        : 1                                                 
+     spurious    :96       spurious    :69       spurious    :104    
+                                                                     
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1?
 df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% summary()
 ```
 
-      spmcomcor.s1       spmgsr.s1           rabies.s1        easymribrain.s1   
-     Min.   :-0.1221   Min.   :-0.647920   Min.   :-0.04058   Min.   :-0.17283  
-     1st Qu.: 0.2229   1st Qu.:-0.007508   1st Qu.: 0.14441   1st Qu.: 0.08349  
-     Median : 0.3816   Median : 0.182850   Median : 0.26203   Median : 0.20204  
-     Mean   : 0.4102   Mean   : 0.208821   Mean   : 0.31659   Mean   : 0.24291  
-     3rd Qu.: 0.5691   3rd Qu.: 0.458940   3rd Qu.: 0.48827   3rd Qu.: 0.36037  
-     Max.   : 0.8908   Max.   : 0.847670   Max.   : 0.78714   Max.   : 0.88179  
+      spmcomcor.s1       spmgsr.s1           rabies.s1           ednix.s1       
+     Min.   :-0.1221   Min.   :-0.647920   Min.   :-0.04058   Min.   :-0.32841  
+     1st Qu.: 0.2229   1st Qu.:-0.007508   1st Qu.: 0.14441   1st Qu.: 0.05917  
+     Median : 0.3788   Median : 0.171480   Median : 0.26203   Median : 0.17217  
+     Mean   : 0.4093   Mean   : 0.207493   Mean   : 0.31693   Mean   : 0.22105  
+     3rd Qu.: 0.5691   3rd Qu.: 0.458940   3rd Qu.: 0.48827   3rd Qu.: 0.32741  
+     Max.   : 0.8908   Max.   : 0.847670   Max.   : 0.78714   Max.   : 0.78405  
                                                               NA's   :1         
          di2.s1            di1.s1           aidamri.s1        liming.s1       
      Min.   :-0.1368   Min.   :-0.05325   Min.   :-0.5490   Min.   :-0.09722  
-     1st Qu.: 0.1417   1st Qu.: 0.09226   1st Qu.: 0.1492   1st Qu.: 0.14322  
-     Median : 0.2648   Median : 0.24470   Median : 0.4542   Median : 0.25545  
-     Mean   : 0.3448   Mean   : 0.29250   Mean   : 0.4053   Mean   : 0.33483  
-     3rd Qu.: 0.5303   3rd Qu.: 0.46134   3rd Qu.: 0.6580   3rd Qu.: 0.51140  
+     1st Qu.: 0.1417   1st Qu.: 0.09226   1st Qu.: 0.1519   1st Qu.: 0.13817  
+     Median : 0.2648   Median : 0.23674   Median : 0.4526   Median : 0.25257  
+     Mean   : 0.3432   Mean   : 0.28990   Mean   : 0.4037   Mean   : 0.33171  
+     3rd Qu.: 0.5303   3rd Qu.: 0.44855   3rd Qu.: 0.6572   3rd Qu.: 0.51140  
      Max.   : 0.9307   Max.   : 0.78341   Max.   : 0.9322   Max.   : 0.85363  
-                                          NA's   :1                           
+                                                                              
         russo.s1       
      Min.   :-0.09044  
      1st Qu.: 0.20945  
-     Median : 0.38896  
-     Mean   : 0.42350  
+     Median : 0.37634  
+     Mean   : 0.42195  
      3rd Qu.: 0.61492  
      Max.   : 0.90118  
                        
@@ -174,28 +174,28 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
 df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% summary()
 ```
 
-     spmcomcor.aca        spmgsr.aca          rabies.aca        easymribrain.aca   
-     Min.   :-0.09968   Min.   :-0.431070   Min.   :-0.231540   Min.   :-0.323180  
-     1st Qu.: 0.05131   1st Qu.:-0.074843   1st Qu.:-0.007405   1st Qu.:-0.006095  
-     Median : 0.16939   Median : 0.015125   Median : 0.039030   Median : 0.053530  
-     Mean   : 0.18203   Mean   : 0.003056   Mean   : 0.053919   Mean   : 0.068808  
-     3rd Qu.: 0.28670   3rd Qu.: 0.089408   3rd Qu.: 0.113842   3rd Qu.: 0.154970  
-     Max.   : 0.71206   Max.   : 0.420410   Max.   : 0.525460   Max.   : 0.512050  
-                                                                NA's   :1          
+     spmcomcor.aca        spmgsr.aca          rabies.aca          ednix.aca       
+     Min.   :-0.09968   Min.   :-0.431070   Min.   :-0.231540   Min.   :-0.33096  
+     1st Qu.: 0.05131   1st Qu.:-0.074843   1st Qu.:-0.008762   1st Qu.:-0.03320  
+     Median : 0.16601   Median : 0.015125   Median : 0.039030   Median : 0.06207  
+     Mean   : 0.18175   Mean   : 0.002081   Mean   : 0.053619   Mean   : 0.06325  
+     3rd Qu.: 0.28670   3rd Qu.: 0.089408   3rd Qu.: 0.113842   3rd Qu.: 0.14580  
+     Max.   : 0.71206   Max.   : 0.420410   Max.   : 0.525460   Max.   : 0.51114  
+                                                                NA's   :1         
         di2.aca            di1.aca          aidamri.aca         liming.aca      
      Min.   :-0.53003   Min.   :-0.59714   Min.   :-0.56416   Min.   :-0.13459  
-     1st Qu.: 0.03585   1st Qu.:-0.14105   1st Qu.: 0.04284   1st Qu.: 0.03194  
-     Median : 0.10995   Median :-0.04777   Median : 0.32475   Median : 0.11007  
-     Mean   : 0.13719   Mean   :-0.05676   Mean   : 0.30253   Mean   : 0.14842  
-     3rd Qu.: 0.23528   3rd Qu.: 0.02131   3rd Qu.: 0.55332   3rd Qu.: 0.23508  
-     Max.   : 0.76025   Max.   : 0.37626   Max.   : 0.92606   Max.   : 0.71030  
-                                           NA's   :1                            
+     1st Qu.: 0.03585   1st Qu.:-0.14185   1st Qu.: 0.05312   1st Qu.: 0.02942  
+     Median : 0.10995   Median :-0.04853   Median : 0.32828   Median : 0.10784  
+     Mean   : 0.13584   Mean   :-0.06048   Mean   : 0.30319   Mean   : 0.14584  
+     3rd Qu.: 0.22281   3rd Qu.: 0.01933   3rd Qu.: 0.55266   3rd Qu.: 0.22670  
+     Max.   : 0.76025   Max.   : 0.37511   Max.   : 0.92606   Max.   : 0.71030  
+                                                                                
        russo.aca       
      Min.   :-0.37282  
      1st Qu.: 0.09581  
      Median : 0.20298  
-     Mean   : 0.22297  
-     3rd Qu.: 0.33408  
+     Mean   : 0.22102  
+     3rd Qu.: 0.32334  
      Max.   : 0.65455  
                        
 
@@ -304,7 +304,7 @@ summary_plot <- df_spec %>% ggplot(aes(x = pipeline,
   geom_bar() +
 scale_fill_manual(values = met.brewer("VanGogh2",4)) +
   theme_classic() + 
-  theme(legend.position = "none", 
+  theme(legend.position = "bottom", 
         axis.title.x = element_blank(), 
         axis.line.x = element_blank(), 
         axis.ticks.x = element_blank()) +
