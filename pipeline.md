@@ -351,7 +351,7 @@ J --> N
 B --> N
 ```
 
-# Liming pipeline.
+# LMPipe pipeline.
 
 ## Owner and use.
 
@@ -370,7 +370,7 @@ Masking done with [2D U-Net](https://doi.org/10.3389/fnins.2020.568614),
 | ANTs     | preprocessing | x       | Apache-2   |
 | FSL      | preprocessing | x       | PSFL       |
 
-## Graphical summary of the Liming pipeline.
+## Graphical summary of the LMPipe pipeline.
 
 ``` mermaid
 flowchart TD
