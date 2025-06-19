@@ -207,6 +207,9 @@ spmcomcor <- spm
 
 spmgsr <- spm
 
+ednixgd  <- ednix
+ednixgsr  <- ednix
+
 liming <- c()
 
 roam <- c("sub_300603", "sub_300604", "sub_300607", "sub_300608", "sub_300609", "sub_300800", "sub_300801", "sub_301308", "sub_301309")
@@ -217,8 +220,8 @@ df <- add_exclude(df, spmgsr)
 df <- add_exclude(df, rabies)
 df <- add_exclude(df, di1)
 df <- add_exclude(df, di2)
-df <- add_exclude(df, easymribrain)
-df <- add_exclude(df, ednix)
+df <- add_exclude(df, ednixgd)
+df <- add_exclude(df, ednixgsr)
 df <- add_exclude(df, aidamri)
 df <- add_exclude(df, liming)
 df <- add_exclude(df, roam)
@@ -232,8 +235,8 @@ df <- add_global_exclude(df, "spmgsr")
 df <- add_global_exclude(df, "rabies")
 df <- add_global_exclude(df, "di1")
 df <- add_global_exclude(df, "di2")
-df <- add_global_exclude(df, "easymribrain")
-df <- add_global_exclude(df, "ednix")
+df <- add_global_exclude(df, "ednixgd")
+df <- add_global_exclude(df, "ednixgsr")
 df <- add_global_exclude(df, "aidamri")
 df <- add_global_exclude(df, "liming")
 df <- add_global_exclude(df, "roam")
