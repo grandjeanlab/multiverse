@@ -11,11 +11,11 @@ Joanes Grandjean
 
 # Summary of the confound models
 
-|             | SPM                           | RABIES           | DI1        | DI2        |
-|-------------|-------------------------------|------------------|------------|------------|
-| Bandpass    | 0.001 - 0.1                   | 0.01 - 0.2       | 0.01 - 0.1 | 0.01 - 0.1 |
+|  | SPM | RABIES | DI1 | DI2 |
+|----|----|----|----|----|
+| Bandpass | 0.001 - 0.1 | 0.01 - 0.2 | 0.01 - 0.1 | 0.01 - 0.1 |
 | Noise model | motion + derivatives + muscle | motion + compcor | ven + vasc | ven + vasc |
-| Smoothing   | 0.5                           | 0.5              | 0.4        | 0.4        |
+| Smoothing | 0.5 | 0.5 | 0.4 | 0.4 |
 
 # SPM pipeline
 
@@ -123,15 +123,15 @@ smoothing with 0.5mm.
 
 ## Package summary
 
-| Software     | Type                   | Version      | License                                                                        |
-|--------------|------------------------|--------------|--------------------------------------------------------------------------------|
-| Ubuntu       | OS                     | 22.04        | Canonical                                                                      |
-| RABIES       | Workflow manager       | 0.5.1        | CoBrALab                                                                       |
-| AFNI         | preprocessing          | AFNI_23.3.06 | GNU GPL v2                                                                     |
-| ANTs         | preprocessing          | 2.5.0        | Apache-2                                                                       |
-| fslconda     | preprocessing          | 2309.1       | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
-| minc-toolkit | preprocessing          | 1.9.18       | GNU GPL v3                                                                     |
-| micromamba   | python package manager | 1.5.1        | BSD-3                                                                          |
+| Software | Type | Version | License |
+|----|----|----|----|
+| Ubuntu | OS | 22.04 | Canonical |
+| RABIES | Workflow manager | 0.5.1 | CoBrALab |
+| AFNI | preprocessing | AFNI_23.3.06 | GNU GPL v2 |
+| ANTs | preprocessing | 2.5.0 | Apache-2 |
+| fslconda | preprocessing | 2309.1 | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
+| minc-toolkit | preprocessing | 1.9.18 | GNU GPL v3 |
+| micromamba | python package manager | 1.5.1 | BSD-3 |
 
 ### Additional software
 
@@ -192,22 +192,22 @@ The container and bash script is then run with the following.
 
 ## Package summary
 
-| Software                              | Type          | Version      | License                                                                        |
-|---------------------------------------|---------------|--------------|--------------------------------------------------------------------------------|
-| Fedora                                | OS            | 36           | MIT                                                                            |
-| AFNI                                  | preprocessing | AFNI_24.1.17 | GNU GPL v2                                                                     |
-| ANTs                                  | preprocessing | 2.4.3        | Apache-2                                                                       |
-| FSL                                   | preprocessing | 6.0.6        | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
-| bash                                  | scripting     | 5.2.15       | GNU GPL v3                                                                     |
-| [BEN](https://github.com/yu02019/BEN) | brain masking | 0.2          | non commercial                                                                 |
+| Software | Type | Version | License |
+|----|----|----|----|
+| Fedora | OS | 36 | MIT |
+| AFNI | preprocessing | AFNI_24.1.17 | GNU GPL v2 |
+| ANTs | preprocessing | 2.4.3 | Apache-2 |
+| FSL | preprocessing | 6.0.6 | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
+| bash | scripting | 5.2.15 | GNU GPL v3 |
+| [BEN](https://github.com/yu02019/BEN) | brain masking | 0.2 | non commercial |
 
 ### Additional software
 
-| Software         | Type                                 | Version  | License         |
-|------------------|--------------------------------------|----------|-----------------|
-| Neurodocker      | Container definition file generation | 1.0      | Appache-2       |
-| Apptainer        | Container platform                   | 1.1.5    | BSD-3           |
-| Slurm (optional) | Workflow manager                     | 22.05.10 | unknown license |
+| Software | Type | Version | License |
+|----|----|----|----|
+| Neurodocker | Container definition file generation | 1.0 | Appache-2 |
+| Apptainer | Container platform | 1.1.5 | BSD-3 |
+| Slurm (optional) | Workflow manager | 22.05.10 | unknown license |
 
 ## Graphical summary of the DI1 pipeline.
 
@@ -323,12 +323,12 @@ Pending publication details
 
 ## Package summary
 
-| Software | Type                    | Version | License                                                                        |
-|----------|-------------------------|---------|--------------------------------------------------------------------------------|
-| AFNI     | preprocessing           | \-      | GNU GPL v2                                                                     |
-| ANTs     | preprocessing           | \-      | Apache-2                                                                       |
-| FSL      | preprocessing           | \-      | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
-| Nipype   | python workflow manager | \-      | Apache-2                                                                       |
+| Software | Type | Version | License |
+|----|----|----|----|
+| AFNI | preprocessing | \- | GNU GPL v2 |
+| ANTs | preprocessing | \- | Apache-2 |
+| FSL | preprocessing | \- | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
+| Nipype | python workflow manager | \- | Apache-2 |
 
 ## Graphical summary of the EDNiX pipeline.
 
@@ -417,11 +417,11 @@ Neuroscience, University of Bari Aldo Moro, Bari, Italy.
 
 ## Package summary
 
-| Software | Type          | Version | License                                                                        |
-|----------|---------------|---------|--------------------------------------------------------------------------------|
-| AFNI     | preprocessing | \-      | GNU GPL v2                                                                     |
-| FSL      | preprocessing | \-      | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
-| BEN      | masking       | \-      | academic                                                                       |
+| Software | Type | Version | License |
+|----|----|----|----|
+| AFNI | preprocessing | \- | GNU GPL v2 |
+| FSL | preprocessing | \- | [Oxford University Innovation](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence) |
+| BEN | masking | \- | academic |
 
 ## Graphical summary of the DI2 pipeline.
 

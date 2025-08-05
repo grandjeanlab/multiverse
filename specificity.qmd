@@ -135,27 +135,30 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
 pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
   
   library(tidyverse)
-  library(ggExtra)
+#  library(ggExtra)
 
   p <- df %>% filter(!!sym(exclude) != 0) %>%
     ggplot(aes(x = !!sym(x), 
                y = !!sym(y), 
                color = as.factor(global.exclude))) + 
-    geom_point(size = 0.1) + 
-    geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
-    geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
-    geom_segment(aes(x=-0.1,xend=0.1,y=-0.1,yend=-0.1),linetype = "dashed", linewidth=0.3, colour='black') + 
-    geom_segment(aes(x=-0.1,xend=-0.1,y=0.1,yend=-0.1),linetype = "dashed", linewidth=0.3, colour='black') + 
+   # geom_point(size = 0.1) + 
+    geom_density_2d_filled(linewidth = 0.1) +
+    geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.2) + 
+    geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.2) + 
+    geom_segment(aes(x=-0.1,xend=0.1,y=-0.1,yend=-0.1),linetype = "dashed", linewidth=0.2, colour='black') + 
+    geom_segment(aes(x=-0.1,xend=-0.1,y=0.1,yend=-0.1),linetype = "dashed", linewidth=0.2, colour='black') + 
     xlim(-0.5, 1) + 
     ylim(-0.5, 1) + 
     #labs(title = pipeline, x = "S1 - S1 [r]", y = "S1 - ACA [r]") +
-    scale_color_manual(values = c("darkgrey", met)) +
+    #scale_color_manual(values = c("darkgrey", met)) +
+    scale_fill_manual(values=c("white", met.brewer(color.scheme, 13)[13:1])) +
     theme_classic() +
-    theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank()) 
+    labs(title = pipeline) +
+    theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank(), plot.title = element_text(hjust = 0.5))  
 
-  m <- ggMarginal(p, fill = met, color = NaN, size = 10) 
+  #m <- ggMarginal(p, fill = met, color = NaN, size = 10) 
 
-  return(m)
+  return(p)
 }
 
 #write a loop that creates a plot for each pipeline based on an array of strings containing the pipeline names.
@@ -186,13 +189,13 @@ df_s1$pipeline <- factor(df_s1$pipeline, levels = rev(pipeline_list))
 
 s1_plot <- df_s1 %>% ggplot(aes(x = s1, y = pipeline, group = pipeline, fill = pipeline)) + 
   stat_slab(aes(thickness = after_stat(pdf*n)), scale = 0.5) + 
-  stat_dotsinterval(side = "bottom", scale = 0.2, slab_linewidth = NA) +
-  geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.3) +
+  stat_pointinterval(scale = 0.2, slab_linewidth = NA, point_interval = mean_qi) +
+  geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.2) +
   scale_fill_manual(values = rev(met)) +
   xlim(-0.5, 1) +
   theme_classic() + 
   theme(legend.position = "none", axis.title.y=element_blank()) +
-  labs(title = "Specific correlation", x = "S1 - S1 [r]", y = "Pipeline")
+  labs(x = "S1 - S1 [r]", y = "Pipeline")
 
 ```
 
@@ -211,13 +214,13 @@ df_aca$pipeline <- factor(df_aca$pipeline, levels = pipeline_list)
 
 aca_plot <- df_aca %>% ggplot(aes(y = aca, x = pipeline, group = pipeline, fill = pipeline)) + 
   stat_slab(aes(thickness = after_stat(pdf*n)), scale = 0.5) + 
-  stat_dotsinterval(side = "bottom", scale = 0.2, slab_linewidth = NA) +
-  geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.3) + 
+  stat_pointinterval(scale = 0.2, slab_linewidth = NA, point_interval = mean_qi) +
+  geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.2) +
   scale_fill_manual(values = met) +
   ylim(-0.5, 1) +
   theme_classic() + 
-  theme(legend.position = "none", axis.title.x = element_blank()) + 
-  labs(title = "Non-specific correlation", y = "S1 - ACA [r]") 
+  theme(legend.position = "none", axis.title.x = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5,)) + 
+  labs(y = "S1 - ACA [r]") 
 
 ```
 
@@ -239,12 +242,16 @@ summary_plot <- df_spec %>% ggplot(aes(x = pipeline,
                        group = specific, 
                        fill = specific)) + 
   geom_bar() +
-scale_fill_manual(values = met.brewer("VanGogh2",4)) +
+scale_fill_manual(values = met.brewer("VanGogh2",5)) +
   theme_classic() + 
-  theme(legend.position = "bottom", 
+  theme( legend.position = "bottom",
+        legend.text = element_text(size=5),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, units = "mm"),
         axis.title.x = element_blank(), 
         axis.line.x = element_blank(), 
-        axis.ticks.x = element_blank()) +
+        axis.ticks.x = element_blank(), 
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   labs(y = "# scans") 
 
 ```
@@ -257,8 +264,9 @@ combine_misc <- ggarrange(s1_plot, aca_plot, summary_plot, labels = LETTERS[leng
 
 combine_plot <- ggarrange(combine_spec, combine_misc , ncol = 1, nrow = 2, heights = c(1, 0.5))
 
-ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 180, height = 120, unit = 'mm', dpi = 300)
+ggsave("assets/figures/pipeline_specificity.svg", plot=combine_plot, width = 300, height = 300, unit = 'mm', dpi = 500)
+ggsave("assets/figures/pipeline_specificity.png", plot=combine_plot, width = 2500, height = 2500, unit = 'px')
 
 ```
 
-![figure_specificity](assets/figures/pipeline_specificity.svg)
+![figure_specificity](assets/figures/pipeline_specificity.png)

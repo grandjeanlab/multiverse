@@ -1,0 +1,204 @@
+# Pipeline exclusion summary
+Joanes Grandjean
+2024-06-18
+
+## SPM
+
+2/209 excluded
+
+sub-300406, missing sub-300500, missing
+
+## RABIES
+
+3/209 excluded
+
+sub-300301, registration sub-300305, registration sub-300507,
+registration sub-300400, timeseries sub-300800, distortion sub-300801,
+distortion sub-300802, distortion sub-300803, distortion sub-300804,
+distortion sub-300805, distortion sub-300806, distortion sub-300807,
+distortion sub-300808, distortion sub-300809, distortion
+
+## DI1
+
+3/209 excluded (please note, DI1 was rerun adaptively to tweak
+registration parameters from failed subjects)
+
+sub-300302, registration sub-300502, registration sub-301106,
+registration
+
+# DI2
+
+11/209 excluded
+
+sub-300502, registration sub-300800, registration sub-300801,
+registration sub-300802, registration sub-300803, registration
+sub-300804, registration sub-300805, registration sub-300806,
+registration sub-300807, registration sub-300808, registration
+sub-300809, registration
+
+## EDNiX
+
+29/209 excluded
+
+sub-300301, missing (orientation error) sub-300302, missing (orientation
+error) sub-300303, missing (orientation error) sub-300304, missing
+(orientation error) sub-300305, missing (orientation error) sub-300306,
+missing (orientation error) sub-300307, missing (orientation error)
+sub-300308, missing (orientation error) sub-300309, missing (orientation
+error) sub-300600, missing (orientation error) sub-300601, missing
+(orientation error) sub-300602, missing (orientation error) sub-300603,
+missing (orientation error) sub-300604, missing (orientation error)
+sub-300605, missing (orientation error) sub-300606, missing (orientation
+error) sub-300607, missing (orientation error) sub-300608, missing
+(orientation error) sub-300609, missing (orientation error) sub-300800,
+missing (orientation error) sub-300801, missing (orientation error)
+sub-300802, missing (orientation error) sub-300803, missing (orientation
+error) sub-300804, missing (orientation error) sub-300805, missing
+(orientation error) sub-300806, missing (orientation error) sub-300807,
+missing (orientation error) sub-300808, missing (orientation error)
+sub-300809, missing (orientation error)
+
+## AIDAmri
+
+60/209 excluded
+
+30 excluded because of initial orientation 30 excluded because of
+registration
+
+sub-300301, missing sub-300302, missing sub-300303, missing sub-300304,
+missing sub-300305, missing sub-300306, missing  
+sub-300307, missing sub-300308, missing sub-300309, missing sub-300600,
+missing sub-300601, missing sub-300602, missing sub-300603, missing
+sub-300604, missing sub-300605, missing sub-300606, missing sub-300607,
+missing sub-300608, missing sub-300609, missing sub-300800, missing  
+sub-300801, missing sub-300802, missing sub-300803, missing sub-300804,
+missing sub-300805, missing sub-300806, missing sub-300807, missing
+sub-300808, missing sub-300809, missing sub-302101, missing sub-300401,
+registration sub-300407, registration sub-300408, registration
+sub-300507, registration sub-300902, registration sub-300903,
+registration sub-300908, registration sub-300909, registration
+sub-301004, registration sub-301008, registration sub-301103,
+registration sub-301104, registration sub-301107, registration
+sub-301108, registration sub-301203, registration sub-301204,
+registration sub-301208, registration sub-301309, registration
+sub-301600, registration sub-301601, registration sub-301602,
+registration sub-301603, registration sub-301604, registration
+sub-301606, registration sub-301607, registration sub-301702,
+registration sub-301704, registration sub-301901, registration
+sub-301906, registration sub-302005, registration
+
+# liming
+
+0/209 excluded
+
+# ROAM
+
+9/209 excluded
+
+sub-300603, registration sub-300604, registration sub-300607,
+registration sub-300608, registration sub-300609, registration
+sub-300800, registration sub-300801, registration sub-301308,
+registration sub-301309, registration
+
+``` r
+#create a function add_exclude that takes df and a vector of participant_id to exclude and return df with a column exclude
+add_exclude <- function(df, exclude){
+  name <- deparse(substitute(exclude))
+  name <- paste0(name, ".exclude") 
+  df <- df %>% 
+    mutate(!!name := ifelse(participant_id %in% exclude, 0, 1))
+  return(df)
+}
+
+#create a function add_global_exclude that takes df and a string of the name of the column, multiply that column by the global.exclude column and save it go the global.exclude column, return df
+add_global_exclude <- function(df, name){
+  name <- paste0(name, ".exclude") 
+  df <- df %>% 
+    mutate(global.exclude = global.exclude * !!sym(name))
+  return(df)
+}
+
+library(tidyverse)
+```
+
+    Warning: Your system is mis-configured: '/etc/localtime' is not a symlink
+
+    Warning: '/etc/localtime' is not identical to any known timezone file
+
+    -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+    v dplyr     1.1.4     v readr     2.1.5
+    v forcats   1.0.0     v stringr   1.5.1
+    v ggplot2   3.5.2     v tibble    3.3.0
+    v lubridate 1.9.4     v tidyr     1.3.1
+    v purrr     1.0.4     
+    -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+    x dplyr::filter() masks stats::filter()
+    x dplyr::lag()    masks stats::lag()
+    i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
+df <- read_tsv("assets/table/participants.tsv") %>% select(participant_id)
+```
+
+    Rows: 209 Columns: 14
+    -- Column specification --------------------------------------------------------
+    Delimiter: "\t"
+    chr (11): participant_id, session_id, rat_strain, rat_sex, rat_age, MRI_vend...
+    dbl  (3): dataset_id, rat_weight, MRI_field_strength
+
+    i Use `spec()` to retrieve the full column specification for this data.
+    i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+spm <- c("sub-300406", "sub-300500")
+
+rabies <- c("sub-300301", "sub-300305", "sub-300507", "sub-300400", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
+
+di1 <- c("sub-300302", "sub-300502", "sub-301106")
+
+di2 <- c("sub-300502", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
+
+ ednix <-c("sub-300301", "sub-300302", "sub-300303", "sub-300304", "sub-300305", "sub-300306", "sub-300307", "sub-300308", "sub-300309", "sub-300600", "sub-300601", "sub-300602", "sub-300603", "sub-300604", "sub-300605", "sub-300606", "sub-300607", "sub-300608", "sub-300609", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809")
+
+aidamri <- c("sub-300301", "sub-300302", "sub-300302", "sub-300303", "sub-300304", "sub-300305", "sub-300306", "ssub-300307", "sub-300308", "sub-300309", "sub-300600", "sub-300601", "sub-300602", "sub-300603", "sub-300604", "sub-300605", "sub-300606", "sub-300607", "sub-300608", "sub-300609", "sub-300800", "sub-300801", "sub-300802", "sub-300803", "sub-300804", "sub-300805", "sub-300806", "sub-300807", "sub-300808", "sub-300809", "sub-302101", "sub-300401","sub-300407","sub-300408","sub-300507","sub-300902","sub-300903","sub-300908","sub-300909","sub-301004","sub-301008","sub-301103","sub-301104","sub-301107","sub-301108","sub-301203","sub-301204","sub-301208","sub-301309","sub-301600","sub-301601","sub-301602","sub-301603","sub-301604","sub-301606","sub-301607","sub-301702","sub-301704","sub-301901","sub-301906","sub-302005")
+
+spmcomcor <- spm
+
+spmgsr <- spm
+
+ednixgd  <- ednix
+ednixgsr  <- ednix
+
+liming <- c()
+
+roam <- c("sub_300603", "sub_300604", "sub_300607", "sub_300608", "sub_300609", "sub_300800", "sub_300801", "sub_301308", "sub_301309")
+
+# create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
+df <- add_exclude(df, spmcomcor)
+df <- add_exclude(df, spmgsr)
+df <- add_exclude(df, rabies)
+df <- add_exclude(df, di1)
+df <- add_exclude(df, di2)
+df <- add_exclude(df, ednixgd)
+df <- add_exclude(df, ednixgsr)
+df <- add_exclude(df, aidamri)
+df <- add_exclude(df, liming)
+df <- add_exclude(df, roam)
+
+# create an global.exclude column with 1 for all participants
+df <- df %>% 
+  mutate(global.exclude = 1)
+
+df <- add_global_exclude(df, "spmcomcor")
+df <- add_global_exclude(df, "spmgsr")
+df <- add_global_exclude(df, "rabies")
+df <- add_global_exclude(df, "di1")
+df <- add_global_exclude(df, "di2")
+df <- add_global_exclude(df, "ednixgd")
+df <- add_global_exclude(df, "ednixgsr")
+df <- add_global_exclude(df, "aidamri")
+df <- add_global_exclude(df, "liming")
+df <- add_global_exclude(df, "roam")
+
+write_tsv(df, "assets/table/participants_exclude.tsv")
+```
