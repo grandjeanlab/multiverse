@@ -100,6 +100,10 @@ registration sub-300608, registration sub-300609, registration
 sub-300800, registration sub-300801, registration sub-301308,
 registration sub-301309, registration
 
+# nordic
+
+0/209 excluded
+
 ``` r
 #create a function add_exclude that takes df and a vector of participant_id to exclude and return df with a column exclude
 add_exclude <- function(df, exclude){
@@ -173,6 +177,8 @@ liming <- c()
 
 roam <- c("sub_300603", "sub_300604", "sub_300607", "sub_300608", "sub_300609", "sub_300800", "sub_300801", "sub_301308", "sub_301309")
 
+nordic <- c()
+
 # create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
 df <- add_exclude(df, spmcomcor)
 df <- add_exclude(df, spmgsr)
@@ -184,6 +190,7 @@ df <- add_exclude(df, ednixgsr)
 df <- add_exclude(df, aidamri)
 df <- add_exclude(df, liming)
 df <- add_exclude(df, roam)
+df <- add_exclude(df, nordic)
 
 # create an global.exclude column with 1 for all participants
 df <- df %>% 
@@ -194,11 +201,12 @@ df <- add_global_exclude(df, "spmgsr")
 df <- add_global_exclude(df, "rabies")
 df <- add_global_exclude(df, "di1")
 df <- add_global_exclude(df, "di2")
-df <- add_global_exclude(df, "ednixgd")
+f <- add_global_exclude(df, "ednixgd")
 df <- add_global_exclude(df, "ednixgsr")
 df <- add_global_exclude(df, "aidamri")
 df <- add_global_exclude(df, "liming")
 df <- add_global_exclude(df, "roam")
+df <- add_global_exclude(df, "nordic")
 
 write_tsv(df, "assets/table/participants_exclude.tsv")
 ```
