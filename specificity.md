@@ -11,7 +11,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednixgd","ednixgsr", "di2", "di1", "aidamri", "liming", "roam")
+pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednixgd","ednixgsr", "di2", "di1", "aidamri", "liming", "roam", "nordic")
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 ```
@@ -114,12 +114,12 @@ df %>% select(paste0(pipeline_list,".specificity")) %>% summary()
      specific    :131    specific    : 32      specific    : 74     
      spurious    : 49    spurious    :114      spurious    :116     
                          NA's        : 30                           
-         roam.specificity
-     no          : 13    
-     non-specific:  2    
-     specific    : 30    
-     spurious    :161    
-     NA's        :  3    
+         roam.specificity    nordic.specificity
+     no          : 13     no          : 15     
+     non-specific:  2     non-specific: 15     
+     specific    : 30     specific    :141     
+     spurious    :161     spurious    : 38     
+     NA's        :  3                          
 
 ``` r
 # look at specificity after filtering for data exclusion
@@ -144,12 +144,12 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".specificity
      specific    :98     specific    :25       specific    :59      
      spurious    :21     spurious    :96       spurious    :69      
                                                                     
-         roam.specificity
-     no          : 12    
-     non-specific:  2    
-     specific    : 26    
-     spurious    :104    
-                         
+         roam.specificity    nordic.specificity
+     no          : 12     no          : 12     
+     non-specific:  2     non-specific: 10     
+     specific    : 26     specific    :101     
+     spurious    :104     spurious    : 21     
+                                               
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1?
@@ -172,14 +172,14 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
      3rd Qu.: 0.32038   3rd Qu.: 0.5303   3rd Qu.: 0.44855   3rd Qu.: 0.6572  
      Max.   : 0.80617   Max.   : 0.9307   Max.   : 0.78341   Max.   : 0.9322  
      NA's   :1                                                                
-       liming.s1           roam.s1        
-     Min.   :-0.09722   Min.   :-0.09044  
-     1st Qu.: 0.13817   1st Qu.: 0.20945  
-     Median : 0.25257   Median : 0.37634  
-     Mean   : 0.33171   Mean   : 0.42195  
-     3rd Qu.: 0.51140   3rd Qu.: 0.61492  
-     Max.   : 0.85363   Max.   : 0.90118  
-                                          
+       liming.s1           roam.s1           nordic.s1      
+     Min.   :-0.09722   Min.   :-0.09044   Min.   :-0.2038  
+     1st Qu.: 0.13817   1st Qu.: 0.20945   1st Qu.: 0.1204  
+     Median : 0.25257   Median : 0.37634   Median : 0.3050  
+     Mean   : 0.33171   Mean   : 0.42195   Mean   : 0.3257  
+     3rd Qu.: 0.51140   3rd Qu.: 0.61492   3rd Qu.: 0.5049  
+     Max.   : 0.85363   Max.   : 0.90118   Max.   : 0.9092  
+                                                            
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1 and aca?
@@ -202,14 +202,14 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
      3rd Qu.: 0.16067   3rd Qu.: 0.22281   3rd Qu.: 0.01933   3rd Qu.: 0.55266  
      Max.   : 0.51031   Max.   : 0.76025   Max.   : 0.37511   Max.   : 0.92606  
      NA's   :1                                                                  
-       liming.aca          roam.aca       
-     Min.   :-0.13459   Min.   :-0.37282  
-     1st Qu.: 0.02942   1st Qu.: 0.09581  
-     Median : 0.10784   Median : 0.20298  
-     Mean   : 0.14584   Mean   : 0.22102  
-     3rd Qu.: 0.22670   3rd Qu.: 0.32334  
-     Max.   : 0.71030   Max.   : 0.65455  
-                                          
+       liming.aca          roam.aca          nordic.aca      
+     Min.   :-0.13459   Min.   :-0.37282   Min.   :-0.37231  
+     1st Qu.: 0.02942   1st Qu.: 0.09581   1st Qu.:-0.14797  
+     Median : 0.10784   Median : 0.20298   Median :-0.04098  
+     Mean   : 0.14584   Mean   : 0.22102   Mean   :-0.03794  
+     3rd Qu.: 0.22670   3rd Qu.: 0.32334   3rd Qu.: 0.05166  
+     Max.   : 0.71030   Max.   : 0.65455   Max.   : 0.35150  
+                                                             
 
 ## this section plots pipeline specificity for each pipeline
 
