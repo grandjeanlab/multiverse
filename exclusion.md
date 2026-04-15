@@ -181,6 +181,16 @@ sub-301309, registration
 
 0/209 excluded
 
+# RABIES_icaaroma
+
+6/209 excluded  
+sub-300100, registration  
+sub-300309, registration  
+sub-300509, registration  
+sub-300606, registration  
+sub-300608, registration  
+sub-300609, registration
+
 ``` r
 #create a function add_exclude that takes df and a vector of participant_id to exclude and return df with a column exclude
 add_exclude <- function(df, exclude){
@@ -211,7 +221,7 @@ library(tidyverse)
     v forcats   1.0.0     v stringr   1.5.1
     v ggplot2   3.5.2     v tibble    3.3.0
     v lubridate 1.9.4     v tidyr     1.3.1
-    v purrr     1.0.4     
+    v purrr     1.1.0     
     -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     x dplyr::filter() masks stats::filter()
     x dplyr::lag()    masks stats::lag()
@@ -258,6 +268,8 @@ nonigsr <- c()
 
 zipp <- c()
 
+rabies_icaaroma <- c("sub-300100", "sub-300309", "sub-300509", "sub-300606", "sub-300608", "sub-300609")
+
 # create in df spm.exclude, rabies.exclude, di1.exclude and put a 1 if the participant is excluded
 df <- add_exclude(df, spmcomcor)
 df <- add_exclude(df, spmgsr)
@@ -271,6 +283,7 @@ df <- add_exclude(df, liming)
 df <- add_exclude(df, roam)
 df <- add_exclude(df, nonigsr)
 df <- add_exclude(df, zipp)
+df <- add_exclude(df, rabies_icaaroma)
 
 # create an global.exclude column with 1 for all participants
 df <- df %>% 
@@ -288,6 +301,7 @@ df <- add_global_exclude(df, "liming")
 df <- add_global_exclude(df, "roam")
 df <- add_global_exclude(df, "nonigsr")
 df <- add_global_exclude(df, "zipp")
+df <- add_global_exclude(df, "rabies_icaaroma")
 
 write_tsv(df, "assets/table/participants_exclude.tsv")
 ```

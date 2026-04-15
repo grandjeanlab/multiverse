@@ -17,7 +17,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "rabies", "ednixgd","ednixgsr", "di2", "di1", "aidamri", "liming", "roam", "nordic")
+pipeline_list<-c("spmcomcor", "spmgsr", "liming", "roam", "rabies", "rabies_icaaroma", "nonigsr", "aidamri", "ednixgd","ednixgsr", "di2", "di1" )
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 
