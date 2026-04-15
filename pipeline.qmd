@@ -37,7 +37,7 @@ Ref 3. Yu, Y. and Qiu, Y. et al. Sleep fMRI with simultaneous electrophysiology 
 | SPM | preprocessing | 12 | GNU GPL v2 | 
 | ITK-SNAP | visualisation | 3.8.0 | GNU GPL v3 | 
 
-## Graphical summary of the DI1 pipeline.
+## Graphical summary of the SPM pipeline.
 ```{mermaid}
 flowchart TD
   A(BIDS Anat) --> B(10x voxel size, Matlab)
