@@ -11,7 +11,7 @@ library(ggdist)
 library(MetBrewer)
 
 color.scheme <- "VanGogh2"
-pipeline_list<-c("spmcomcor", "spmgsr", "liming", "roam", "rabies", "rabies_icaaroma", "nonigsr", "aidamri", "ednixgd","ednixgsr", "di2", "di1" )
+pipeline_list<-c("spmcomcor", "spmgsr", "liming", "roam", "rabies", "rabies_icaaroma", "nonigsr", "aidamri", "ednixgd","ednixgsr", "di2", "di1", "zipp" )
 
 met <- met.brewer(color.scheme, length(pipeline_list))
 ```
@@ -120,6 +120,12 @@ df %>% select(paste0(pipeline_list,".specificity")) %>% summary()
      specific    :55        specific    : 71    specific    :131   
      spurious    :71        spurious    :112    spurious    : 49   
      NA's        :30                                               
+         zipp.specificity
+     no          :  6    
+     non-specific:  4    
+     specific    : 75    
+     spurious    :120    
+     NA's        :  4    
 
 ``` r
 # look at specificity after filtering for data exclusion
@@ -131,21 +137,31 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".specificity
      non-specific: 2        non-specific:17       non-specific: 5      
      specific    :45        specific    :61       specific    :58      
      spurious    :85        spurious    :34       spurious    :68      
+                                                                       
          roam.specificity    rabies.specificity rabies_icaaroma.specificity
      no          : 12     no          :19       no          :19            
      non-specific:  2     non-specific: 2       non-specific: 4            
      specific    : 26     specific    :81       specific    :78            
      spurious    :102     spurious    :40       spurious    :41            
+                                                                           
        nonigsr.specificity   aidamri.specificity   ednixgd.specificity
      no          :12       no          :11       no          :32      
      non-specific:10       non-specific:12       non-specific: 8      
      specific    :99       specific    :24       specific    :50      
      spurious    :21       spurious    :95       spurious    :52      
+                                                                      
        ednixgsr.specificity     di2.specificity     di1.specificity
      no          :29        no          :12     no          :19    
      non-specific:11        non-specific: 8     non-specific: 6    
      specific    :46        specific    :53     specific    :96    
      spurious    :56        spurious    :69     spurious    :21    
+                                                                   
+         zipp.specificity
+     no          : 6     
+     non-specific: 3     
+     specific    :55     
+     spurious    :77     
+     NA's        : 1     
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1?
@@ -159,6 +175,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
      Mean   : 0.4086   Mean   : 0.213455   Mean   : 0.32895   Mean   : 0.41712  
      3rd Qu.: 0.5679   3rd Qu.: 0.459160   3rd Qu.: 0.50229   3rd Qu.: 0.60456  
      Max.   : 0.8908   Max.   : 0.847670   Max.   : 0.85363   Max.   : 0.90118  
+                                                                                
        rabies.s1        rabies_icaaroma.s1   nonigsr.s1        aidamri.s1     
      Min.   :-0.04058   Min.   :-0.08497   Min.   :-0.2038   Min.   :-0.5490  
      1st Qu.: 0.14436   1st Qu.: 0.11589   1st Qu.: 0.1169   1st Qu.: 0.1471  
@@ -166,6 +183,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
      Mean   : 0.31387   Mean   : 0.31475   Mean   : 0.3234   Mean   : 0.4019  
      3rd Qu.: 0.48345   3rd Qu.: 0.48742   3rd Qu.: 0.5001   3rd Qu.: 0.6544  
      Max.   : 0.78714   Max.   : 0.88238   Max.   : 0.9092   Max.   : 0.9322  
+                                                                              
        ednixgd.s1        ednixgsr.s1           di2.s1            di1.s1        
      Min.   :-0.32429   Min.   :-0.32431   Min.   :-0.1368   Min.   :-0.05325  
      1st Qu.: 0.05155   1st Qu.: 0.05419   1st Qu.: 0.1398   1st Qu.: 0.09209  
@@ -173,6 +191,15 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".s1")) %>% s
      Mean   : 0.20835   Mean   : 0.21663   Mean   : 0.3407   Mean   : 0.28869  
      3rd Qu.: 0.32067   3rd Qu.: 0.32193   3rd Qu.: 0.5266   3rd Qu.: 0.44665  
      Max.   : 0.76522   Max.   : 0.80617   Max.   : 0.9307   Max.   : 0.78341  
+                                                                               
+        zipp.s1       
+     Min.   :-0.2354  
+     1st Qu.: 0.2379  
+     Median : 0.3916  
+     Mean   : 0.4085  
+     3rd Qu.: 0.5697  
+     Max.   : 0.8854  
+     NA's   :1        
 
 ``` r
 # are the difference in specificity related to raw functional connectivity between s1 and aca?
@@ -186,6 +213,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
      Mean   : 0.18161   Mean   : 0.003104   Mean   : 0.14294   Mean   : 0.2188  
      3rd Qu.: 0.28302   3rd Qu.: 0.093143   3rd Qu.: 0.22350   3rd Qu.: 0.3134  
      Max.   : 0.71206   Max.   : 0.420410   Max.   : 0.71030   Max.   : 0.6545  
+                                                                                
        rabies.aca        rabies_icaaroma.aca  nonigsr.aca        aidamri.aca      
      Min.   :-0.231540   Min.   :-0.32522    Min.   :-0.37231   Min.   :-0.56416  
      1st Qu.:-0.008055   1st Qu.:-0.05879    1st Qu.:-0.14632   1st Qu.: 0.06402  
@@ -193,6 +221,7 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
      Mean   : 0.052802   Mean   : 0.02959    Mean   :-0.03624   Mean   : 0.30225  
      3rd Qu.: 0.111708   3rd Qu.: 0.09592    3rd Qu.: 0.05330   3rd Qu.: 0.55180  
      Max.   : 0.525460   Max.   : 0.47317    Max.   : 0.35150   Max.   : 0.92381  
+                                                                                  
       ednixgd.aca        ednixgsr.aca         di2.aca            di1.aca        
      Min.   :-0.21802   Min.   :-0.20608   Min.   :-0.53003   Min.   :-0.59714  
      1st Qu.:-0.03600   1st Qu.:-0.02359   1st Qu.: 0.03722   1st Qu.:-0.14276  
@@ -200,6 +229,15 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
      Mean   : 0.05469   Mean   : 0.07554   Mean   : 0.13622   Mean   :-0.06119  
      3rd Qu.: 0.15239   3rd Qu.: 0.16074   3rd Qu.: 0.21805   3rd Qu.: 0.01980  
      Max.   : 0.51500   Max.   : 0.51031   Max.   : 0.76025   Max.   : 0.37511  
+                                                                                
+        zipp.aca       
+     Min.   :-0.39895  
+     1st Qu.: 0.04562  
+     Median : 0.13200  
+     Mean   : 0.15586  
+     3rd Qu.: 0.23255  
+     Max.   : 0.91729  
+     NA's   :1         
 
 ## this section plots pipeline specificity for each pipeline
 
