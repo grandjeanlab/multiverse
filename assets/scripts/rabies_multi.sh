@@ -104,6 +104,13 @@ rabies="/opt/rabies/${rabies_version}/rabies.sif"
 prep_arg='--commonspace_resampling 0.3x0.3x0.3 --anatomical_resampling 0.3x0.3x0.3 --detect_dummy --oblique2card 3dWarp --commonspace_reg masking=false,brain_extraction=false,template_registration=SyN,fast_commonspace=true --anat_template '${template_dir}'/template.nii.gz --brain_mask '${template_dir}'/mask.nii.gz --WM_mask '${template_dir}'/wm.nii.gz --CSF_mask '${template_dir}'/csf.nii.gz --vascular_mask '${template_dir}'/csf.nii.gz --TR ' 
 
 #variable arguments for confound correction. these will be looped over to create a separate script for each combination of confound correction steps.
+
+###
+##--image_scaling voxelwise_standardization
+
+###--image_scaling grand_mean_scaling by Gabriel Desrosiers-Gregoire
+
+
 conf_arg_gen=' --highpass 0.01 --read_datasink'
 
 conf_arg_smooth=("0.1" "0.2" "0.3" "0.4" "0.5")
@@ -112,7 +119,7 @@ conf_name_smooth=("smooth01" "smooth02" "smooth03" "smooth04" "smooth05")
 conf_arg_lowpass=("0.1" "0.15" "0.2" "0.25")
 conf_name_lowpass=("lowpass01" "lowpass015" "lowpass02" "lowpass025")
 
-conf_arg_nuisance_regressors=("mot_6 WM_signal CSF_signal" "mot_6 global_signal" "mot_6 aCompCor_percent")
+conf_arg_nuisance_regressors=("mot_6 WM_signal CSF_signal" "mot_6 global_signal" "mot_6 aCompCor_5")
 conf_name_nuisance_regressors=("wmcsf" "gsr" "aCompCor")
 
 conf_arg_frame_censoring=("FD_censoring=true,FD_threshold=0.1,DVARS_censoring=true,minimum_timepoint=3" "FD_censoring=true,FD_threshold=0.1,DVARS_censoring=false,minimum_timepoint=3" "FD_censoring=true,FD_threshold=0.5,DVARS_censoring=true,minimum_timepoint=3" "FD_censoring=true,FD_threshold=0.5,DVARS_censoring=false,minimum_timepoint=3")
