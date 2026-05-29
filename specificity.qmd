@@ -77,16 +77,15 @@ df %>% filter(global.exclude == 1) %>% select(paste0(pipeline_list,".aca")) %>% 
 ```{r}
 #| eval = FALSE
 
-pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
+pipeline_specificity_plot <- function(df, pipeline){
   
   library(tidyverse)
 #  library(ggExtra)
 
-  p <- df %>% filter(!!sym(exclude) != 0) %>%
-    ggplot(aes(x = !!sym(x), 
-               y = !!sym(y), 
-               color = as.factor(global.exclude))) + 
-   # geom_point(size = 0.1) + 
+  p <- df %>% rename_with(~ str_replace(., paste0(pipeline, "."), "default."), starts_with(pipeline)) %>%
+    filter(default.exclude != 0) %>%
+    ggplot(aes(x = default.s1, 
+               y = default.aca)) + 
     geom_density_2d_filled(linewidth = 0.1) +
     geom_vline(xintercept = 0.1, linetype = "dashed", linewidth=0.2) + 
     geom_hline(yintercept = 0.1, linetype = "dashed", linewidth=0.2) + 
@@ -94,14 +93,10 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
     geom_segment(aes(x=-0.1,xend=-0.1,y=0.1,yend=-0.1),linetype = "dashed", linewidth=0.2, colour='black') + 
     xlim(-0.5, 1) + 
     ylim(-0.5, 1) + 
-    #labs(title = pipeline, x = "S1 - S1 [r]", y = "S1 - ACA [r]") +
-    #scale_color_manual(values = c("darkgrey", met)) +
     scale_fill_manual(values=c("white", met.brewer(color.scheme, 13)[13:1])) +
     theme_classic() +
     labs(title = pipeline) +
     theme(legend.position = "none", axis.text =element_blank(), axis.title = element_blank(), axis.ticks = element_blank(), plot.title = element_text(hjust = 0.5))  
-
-  #m <- ggMarginal(p, fill = met, color = NaN, size = 10) 
 
   return(p)
 }
@@ -109,7 +104,7 @@ pipeline_specificity_plot <- function(df, x, y, exclude, pipeline, met){
 #write a loop that creates a plot for each pipeline based on an array of strings containing the pipeline names.
 
 for(i in 1:length(pipeline_list)){
-  assign(paste0(pipeline_list[i], "_spec"), pipeline_specificity_plot(df, paste0(pipeline_list[i], ".s1"), paste0(pipeline_list[i], ".aca"), paste0(pipeline_list[i], ".exclude"), pipeline_list[i], met[i]))
+  assign(paste0(pipeline_list[i], "_spec"), pipeline_specificity_plot(df, paste0(pipeline_list[i])))
 }
 
 combine_spec <- ggarrange(plotlist=mget(paste0(pipeline_list,"_spec")), labels = LETTERS[1:length(pipeline_list)])
@@ -215,3 +210,52 @@ ggsave("assets/figures/pipeline_specificity.png", plot=combine_plot, width = 250
 ```
 
 ![figure_specificity](assets/figures/pipeline_specificity.png)
+
+
+
+
+## the next question is how the processing is impacting the functional maps. for that we move to python. 
+
+
+```{python}
+import warnings
+warnings.filterwarnings('ignore')
+
+from nilearn.glm.second_level import SecondLevelModel
+from nilearn.plotting import plot_stat_map, show
+
+import numpy as np
+import pandas as pd
+import os
+
+bg_img = "/project/4180000.41/SIGMA_Wistar_Rat_Brain_TemplatesAndAtlases_Version1.1/SIGMA_Rat_Anatomical_Imaging/SIGMA_Rat_Anatomical_ExVivo_Template/SIGMA_ExVivo_Brain_Template_Masked.nii"
+mask_img = "/project/4180000.41/template_rs/mask.nii.gz"
+data_dir = "/project/4180000.41/data/"
+out_dir = "assets/tmp/"
+
+pipeline_list = ["spmcomcor", "spmgsr", "liming", "roam", "rabies", "rabies_icaaroma", "nonigsr", "aidamri", "ednixgd","ednixgsr", "di2", "di1", "zipp"]
+seed_list = ["s1", "aca"]
+
+exclude_df = pd.read_csv("assets/table/participants_exclude.tsv", sep="\t")
+
+
+#write a loop that for each pipeline 
+for i in range(len(pipeline_list)):
+  pipeline = pipeline_list[i]
+  print(pipeline)
+  seed = seed_list[0]
+  #from exclude_df, get participant_id where pipeline + ".exclude" != 0
+  sub_list = exclude_df[exclude_df[pipeline + ".exclude"] != 0]["participant_id"].tolist()
+  #get all the .nii.gz files in data_dir/pipeline+"_export"/"seed/sub_list+".nii.gz"
+  scan_list = [os.path.join(data_dir, pipeline + "_export", "func_" + seed, scan) for scan in os.listdir(os.path.join(data_dir, pipeline + "_export", "func_" + seed))]
+  #keep only scan_list items if they have a pattern listed in sub_list
+  scan_list = [scan for scan in scan_list if any(sub in scan for sub in sub_list)]
+  #using nilearn, carry out a 2nd level statistical analysis correstponding to a one-sample ttest.
+  design_matrix = pd.DataFrame(np.ones((len(scan_list),1)), columns=["intercept"])
+  stats_map = SecondLevelModel(mask_img = mask_img).fit(scan_list, design_matrix=design_matrix).compute_contrast(output_type='z_score')
+  #estimate the average of scan_list
+  plot_stat_map(bg_img=bg_img, stat_map_img=stats_map, cut_coords = (5, 0.2, 5.1), threshold=7.5, vmax = 25, vmin = -25, display_mode='ortho', black_bg=False, title=pipeline + " - n = " + str(len(scan_list)), output_file=os.path.join(out_dir, pipeline + "_" + seed + "_stat.png"))
+
+
+
+```
